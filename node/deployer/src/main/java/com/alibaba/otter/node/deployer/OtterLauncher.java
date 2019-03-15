@@ -25,17 +25,16 @@ import com.alibaba.otter.node.etl.OtterController;
 
 /**
  * load otter task to sync data with some pipeline.
- * 
- * @author xiaoqing.zhouxq 2011-8-29 上午10:02:04
+ *
+ * @author gangzi
+ * Otter的Node节点启动类
  */
 public class OtterLauncher {
 
     private static final Logger logger = LoggerFactory.getLogger(OtterLauncher.class);
 
     public static void main(String[] args) throws Throwable {
-        // 启动dragoon client
-        // startDragoon();
-        // logger.info("INFO ## the dragoon is start now ......");
+
         final OtterController controller = OtterContextLocator.getOtterController();
         controller.start();
         try {
@@ -48,7 +47,7 @@ public class OtterLauncher {
                         controller.stop();
                     } catch (Throwable e) {
                         logger.warn("WARN ##something goes wrong when stopping Otter Server:\n{}",
-                            ExceptionUtils.getFullStackTrace(e));
+                                ExceptionUtils.getFullStackTrace(e));
                     } finally {
                         logger.info("INFO ## otter server is down.");
                     }
@@ -57,13 +56,8 @@ public class OtterLauncher {
             });
         } catch (Throwable e) {
             logger.error("ERROR ## Something goes wrong when starting up the Otter Server:\n{}",
-                ExceptionUtils.getFullStackTrace(e));
+                    ExceptionUtils.getFullStackTrace(e));
             System.exit(0);
         }
     }
-
-    // 启动dragoon client
-    // private static void startDragoon() {
-    // do nothing
-    // }
 }
