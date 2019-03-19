@@ -27,20 +27,38 @@ import com.alibaba.otter.shared.common.utils.OtterToStringStyle;
 
 /**
  * channel数据对象
- * 
+ *
  * @author jianghang 2011-8-31 下午07:35:29
  */
 public class Channel implements Serializable {
 
     private static final long serialVersionUID = 2345662422309356370L;
-    private Long              id;                                       // 唯一标示id
-    private String            name;
-    private ChannelStatus     status;
-    private String            description;                              // 描述信息
-    private List<Pipeline>    pipelines;
-    private Date              gmtCreate;
-    private Date              gmtModified;
-    private ChannelParameter  parameters       = new ChannelParameter();
+    /**
+     * 唯一标示id
+     */
+    private Long id;
+
+    /**
+     * Channel名称
+     */
+    private String name;
+
+    /**
+     * Channel状态
+     */
+    private ChannelStatus status;
+    /**
+     * 描述信息
+     */
+    private String description;
+
+    /**
+     * Channel对应的Pipeline，双向时会有两个，所以用List
+     */
+    private List<Pipeline> pipelines;
+    private Date gmtCreate;
+    private Date gmtModified;
+    private ChannelParameter parameters = new ChannelParameter();
 
     public Long getId() {
         return id;

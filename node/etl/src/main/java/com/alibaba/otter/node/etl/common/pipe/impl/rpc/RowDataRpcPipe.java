@@ -63,7 +63,8 @@ public class RowDataRpcPipe extends AbstractRpcPipe<DbBatch, RpcPipeKey> {
     @SuppressWarnings("unused")
     // 处理rpc调用事件
     private DbBatch onGet(RpcEvent event) {
-        return cache.remove(event.getKey()); // 不建议使用remove，rpc调用容易有retry请求，导致第二次拿到的数据为null
+        // 不建议使用remove，rpc调用容易有retry请求，导致第二次拿到的数据为null
+        return cache.remove(event.getKey());
     }
 
     private Long getNid() {

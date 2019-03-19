@@ -69,10 +69,12 @@ public class ArbitrateRemoteServiceImpl implements ArbitrateRemoteService {
         Assert.notNull(event);
 
         List<Channel> channels = channelService.listByNodeId(event.getNid(), ChannelStatus.START);
-        for (Channel channel : channels) {// 重启一下对应的channel
+        // 重启一下对应的channel
+        for (Channel channel : channels) {
             boolean result = arbitrateManageService.channelEvent().restart(channel.getId());
             if (result) {
-                channelService.notifyChannel(channel.getId());// 推送一下配置
+                // 推送一下配置
+                channelService.notifyChannel(channel.getId());
             }
         }
     }

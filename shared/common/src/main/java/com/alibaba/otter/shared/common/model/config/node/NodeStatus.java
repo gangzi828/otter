@@ -18,14 +18,19 @@ package com.alibaba.otter.shared.common.model.config.node;
 
 /**
  * Node节点的运行状态
- * 
+ *
  * @author jianghang
+ * @author gangzi 2019-03-19 13:30:32
  */
 public enum NodeStatus {
 
-    /** 运行中 */
+    /**
+     * 运行中
+     */
     START,
-    /** 停止 */
+    /**
+     * 停止
+     */
     STOP;
 
     public boolean isStart() {

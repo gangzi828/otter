@@ -25,18 +25,39 @@ import com.alibaba.otter.shared.common.utils.OtterToStringStyle;
 
 /**
  * channel相关的参数对象
- * 
+ *
  * @author jianghang 2011-9-6 下午12:35:05
+ * @author gangzi 2019-03-19 13:26:21
  */
 public class ChannelParameter implements Serializable {
 
-    private static final long serialVersionUID            = 298053781205276645L;
-    private Long              channelId;
-    private boolean           enableRemedy                = false;                   // 是否启用冲突补救算法
-    private RemedyAlgorithm   remedyAlgorithm             = RemedyAlgorithm.LOOPBACK; // 冲突补救算法
-    private int               remedyDelayThresoldForMedia = 60;                      // 低于60秒钟的同步延迟，回环补救不反查
-    private SyncMode          syncMode                    = SyncMode.FIELD;          // 同步模式：字段/整条记录
-    private SyncConsistency   syncConsistency             = SyncConsistency.BASE;    // 同步一致性要求
+    private static final long serialVersionUID = 298053781205276645L;
+
+    /**
+     * Channel ID
+     */
+    private Long channelId;
+    /**
+     * 是否启用冲突补救算法
+     */
+    private boolean enableRemedy = false;
+
+    /**
+     * 冲突补救算法
+     */
+    private RemedyAlgorithm remedyAlgorithm = RemedyAlgorithm.LOOPBACK;
+    /**
+     * 低于60秒钟的同步延迟，回环补救不反查
+     */
+    private int remedyDelayThresoldForMedia = 60;
+    /**
+     * 同步模式：字段/整条记录
+     */
+    private SyncMode syncMode = SyncMode.FIELD;
+    /**
+     * 同步一致性要求
+     */
+    private SyncConsistency syncConsistency = SyncConsistency.BASE;
 
     public boolean isEnableRemedy() {
         return enableRemedy;
@@ -56,10 +77,14 @@ public class ChannelParameter implements Serializable {
 
     public static enum RemedyAlgorithm {
 
-        /** 交集覆盖 */
+        /**
+         * 交集覆盖
+         */
         INTERSECTION,
 
-        /** 普通模式-全部覆盖 */
+        /**
+         * 普通模式-全部覆盖
+         */
         LOOPBACK;
 
         public boolean isIntersection() {
@@ -73,14 +98,18 @@ public class ChannelParameter implements Serializable {
     }
 
     public static enum SyncMode {
-        /** 行记录 */
+        /**
+         * 行记录
+         */
         ROW("R"),
-        /** 字段记录 */
+        /**
+         * 字段记录
+         */
         FIELD("F");
 
         private String value;
 
-        SyncMode(String value){
+        SyncMode(String value) {
             this.value = value;
         }
 
@@ -113,16 +142,22 @@ public class ChannelParameter implements Serializable {
     }
 
     public static enum SyncConsistency {
-        /** 基于当前介质最新数据 */
+        /**
+         * 基于当前介质最新数据
+         */
         MEDIA("M"),
-        /** 基于当前的store记录的数据 */
+        /**
+         * 基于当前的store记录的数据
+         */
         STORE("S"),
-        /** 基于当前的变更value，最终一致性 */
+        /**
+         * 基于当前的变更value，最终一致性
+         */
         BASE("B");
 
         private String value;
 
-        SyncConsistency(String value){
+        SyncConsistency(String value) {
             this.value = value;
         }
 

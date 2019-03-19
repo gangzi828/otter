@@ -23,9 +23,10 @@ import com.alibaba.otter.shared.arbitrate.impl.manage.PipelineArbitrateEvent;
 import com.alibaba.otter.shared.arbitrate.impl.manage.SystemArbitrateEvent;
 
 /**
- * manager的管理信号
+ * manager的管理信号，基于spring自动依赖注入的方式实现属性的注入的。
  * 
  * @author jianghang 2011-9-26 下午07:03:35
+ * @author gangzi 2019-03-19 17:49:34
  * @version 4.0.0
  */
 public class ArbitrateManageServiceImpl implements ArbitrateManageService {
@@ -35,18 +36,22 @@ public class ArbitrateManageServiceImpl implements ArbitrateManageService {
     private NodeArbitrateEvent     nodeEvent;
     private PipelineArbitrateEvent pipelineEvent;
 
+    @Override
     public SystemArbitrateEvent systemEvent() {
         return systemEvent;
     }
 
+    @Override
     public ChannelArbitrateEvent channelEvent() {
         return channelEvent;
     }
 
+    @Override
     public NodeArbitrateEvent nodeEvent() {
         return nodeEvent;
     }
 
+    @Override
     public PipelineArbitrateEvent pipelineEvent() {
         return pipelineEvent;
     }

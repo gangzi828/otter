@@ -25,21 +25,49 @@ import com.alibaba.otter.shared.common.utils.OtterToStringStyle;
 
 /**
  * Node数据对象
- * 
+ *
  * @author jianghang 2011-8-19 上午10:19:40
+ * @author gangzi 2019-03-19 13:29:21
  */
 public class Node implements Serializable {
 
     private static final long serialVersionUID = 1427704645257914286L;
-    private Long              id;                                     // 唯一标示id
-    private String            name;                                   // 机器名字
-    private String            ip;                                     // 机器ip
-    private Long              port;                                   // 和manager对应的通讯端口
-    private NodeStatus        status;                                 // 对应状态
-    private String            description;                            // 详细描述
-    private NodeParameter     parameters       = new NodeParameter(); // node对应参数信息
-    private Date              gmtCreate;                              // 创建时间
-    private Date              gmtModified;                            // 修改时间
+    /**
+     * 唯一标示id
+     */
+    private Long id;
+    /**
+     * 机器名字
+     */
+    private String name;
+    /**
+     * 机器ip
+     */
+    private String ip;
+    /**
+     * 和manager对应的通讯端口
+     */
+    private Long port;
+    /**
+     * 对应状态
+     */
+    private NodeStatus status;
+    /**
+     * 详细描述
+     */
+    private String description;
+    /**
+     * node对应参数信息
+     */
+    private NodeParameter parameters = new NodeParameter();
+    /**
+     * 创建时间
+     */
+    private Date gmtCreate;
+    /**
+     * 修改时间
+     */
+    private Date gmtModified;
 
     public Long getId() {
         return id;

@@ -25,18 +25,33 @@ import com.alibaba.otter.shared.common.utils.OtterToStringStyle;
 
 /**
  * Node节点对应的参数信息
- * 
+ *
  * @author jianghang 2011-9-16 下午03:39:36
  * @version 4.0.0
  */
 public class NodeParameter implements Serializable {
 
     private static final long serialVersionUID = -4788966688697451950L;
-    private Integer           mbeanPort;                               // mbean端口
-    private Integer           downloadPort;                            // 下载端口
-    private AutoKeeperCluster zkCluster;                               // zk的集群
-    private String            externalIp;                              // 外部ip
-    private Boolean           useExternalIp    = false;                // 是否使用外部ip，此优先级高于pipeline参数，设置后包括rpc/pipe都将使用外部ip
+    /**
+     * mbean端口
+     */
+    private Integer mbeanPort;
+    /**
+     * 下载端口
+     */
+    private Integer downloadPort;
+    /**
+     * zk的集群
+     */
+    private AutoKeeperCluster zkCluster;
+    /**
+     * 外部IP
+     */
+    private String externalIp;
+    /**
+     * 是否使用外部ip，此优先级高于pipeline参数，设置后包括rpc/pipe都将使用外部ip
+     */
+    private Boolean useExternalIp = false;
 
     public Integer getDownloadPort() {
         return downloadPort;

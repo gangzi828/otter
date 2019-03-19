@@ -59,36 +59,66 @@ import com.google.common.collect.OtterMigrateMap;
 
 /**
  * 管理和维护对应node机器内的S.E.T.L任务，实时接收manager推送的NodeTask调度信息，可查看 {@linkplain NodeTaskService}
- * 
+ *
  * @author jianghang 2012-4-21 下午04:48:12
  * @version 4.0.2
  */
 public class OtterController implements NodeTaskListener, OtterControllerMBean {
 
-    private static final Logger                   logger      = LoggerFactory.getLogger(OtterController.class);
+    private static final Logger logger = LoggerFactory.getLogger(OtterController.class);
 
-    // 第一层为pipelineId，第二层为S.E.T.L模块
+    /**
+     * 第一层为pipelineId，第二层为S.E.T.L模块
+     */
     private Map<Long, Map<StageType, GlobalTask>> controllers = OtterMigrateMap.makeComputingMap(new Function<Long, Map<StageType, GlobalTask>>() {
 
-                                                                  public Map<StageType, GlobalTask> apply(Long pipelineId) {
-                                                                      return new MapMaker().makeMap();
-                                                                  }
-                                                              });
-    private ConfigClientService                   configClientService;
-    private ArbitrateManageService                arbitrateManageService;
-    private NodeTaskService                       nodeTaskService;
-    // 各种资源管理
-    private DataSourceService                     dataSourceService;                                           // 连接池资源
-    private DbDialectFactory                      dbDialectFactory;                                            // 数据库信息资源
-    private ArbitrateEventService                 arbitrateEventService;                                       // 仲裁器资源
-    private ExecutorService                       executorService;
+        @Override
+        public Map<StageType, GlobalTask> apply(Long pipelineId) {
+            return new MapMaker().makeMap();
+        }
+    });
 
-    private StageAggregationCollector             stageAggregationCollector;
+    /**
+     * Node节点配置管理服务
+     */
+    private ConfigClientService configClientService;
+
+    /**
+     * 仲裁器管理服务
+     */
+    private ArbitrateManageService arbitrateManageService;
+    /**
+     * 仲裁器资源
+     */
+    private ArbitrateEventService arbitrateEventService;
+
+    /**
+     * Node节点任务管理服务
+     */
+    private NodeTaskService nodeTaskService;
+
+    /**
+     * 连接池资源
+     */
+    private DataSourceService dataSourceService;
+    /**
+     * 数据库信息资源
+     */
+    private DbDialectFactory dbDialectFactory;
+
+
+    /**
+     * 线程执行器
+     */
+    private ExecutorService executorService;
+
+    private StageAggregationCollector stageAggregationCollector;
 
     public void start() throws Throwable {
         // 初始化节点
         initNid();
-        nodeTaskService.addListener(this); // 将自己添加为NodeTask响应者
+        // 将自己添加为NodeTask响应者
+        nodeTaskService.addListener(this);
     }
 
     public void stop() throws Throwable {
@@ -130,6 +160,7 @@ public class OtterController implements NodeTaskListener, OtterControllerMBean {
         ZooKeeperClient.destory();// 关闭zookeeper
     }
 
+    @Override
     public boolean process(List<NodeTask> nodeTasks) {
         if (nodeTasks == null || nodeTasks.isEmpty()) {
             return true;
@@ -142,7 +173,7 @@ public class OtterController implements NodeTaskListener, OtterControllerMBean {
                 Map<StageType, GlobalTask> tasks = controllers.remove(pipelineId);
                 if (tasks != null) {
                     logger.info("INFO ## shutdown this pipeline sync ,the pipelineId = {} and tasks = {}", pipelineId,
-                                tasks.keySet());
+                            tasks.keySet());
                     stopPipeline(pipelineId, tasks);
                 } else {
                     logger.info("INFO ## this pipeline id = {} is not start sync", pipelineId);
@@ -192,7 +223,8 @@ public class OtterController implements NodeTaskListener, OtterControllerMBean {
         }
 
         if (task != null) {
-            OtterContextLocator.autowire(task); // 注入一下spring资源
+            // 注入一下spring资源
+            OtterContextLocator.autowire(task);
             task.start();
             tasks.put(taskType, task);
             logger.info("INFO ## start this task = {} success", taskType.toString());
@@ -222,7 +254,8 @@ public class OtterController implements NodeTaskListener, OtterControllerMBean {
         }
         // close other resources.
         try {
-            Thread.sleep(1 * 1000); // sleep 5s，等待S.E.T.L释放线程
+            // sleep 5s，等待S.E.T.L释放线程
+            Thread.sleep(1 * 1000);
         } catch (InterruptedException e) {
             logger.error("ERROR ## ", e);
         }
@@ -252,7 +285,10 @@ public class OtterController implements NodeTaskListener, OtterControllerMBean {
         ZooKeeperClient.registerNotification(sessionExpired);
     }
 
-    // 判断本机ip是否和node.getIp()相同
+    /**
+     * 判断本机ip是否和node.getIp()相同
+     * @param nid
+     */
     private void checkNidVaild(String nid) {
         Node node = configClientService.currentNode();
         String hostIp = AddressUtils.getHostIp();
@@ -260,18 +296,20 @@ public class OtterController implements NodeTaskListener, OtterControllerMBean {
         int nodePort = node.getPort().intValue();
         if (!AddressUtils.isHostIp(nodeIp)) {
             throw new IllegalArgumentException(
-                                               String.format("node[%s] ip[%s] port[%s] , but your host ip[%s] is not matched!",
-                                                             nid, nodeIp, nodePort, hostIp));
+                    String.format("node[%s] ip[%s] port[%s] , but your host ip[%s] is not matched!",
+                            nid, nodeIp, nodePort, hostIp));
         }
     }
 
     // ================ mbean info =======================
 
+    @Override
     public String getHeapMemoryUsage() {
         MemoryUsage memoryUsage = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();
         return JsonUtils.marshalToString(memoryUsage);
     }
 
+    @Override
     public String getNodeSystemInfo() {
         OperatingSystemMXBean mbean = ManagementFactory.getOperatingSystemMXBean();
         StringBuilder buf = new StringBuilder();
@@ -281,18 +319,22 @@ public class OtterController implements NodeTaskListener, OtterControllerMBean {
         return buf.toString();
     }
 
+    @Override
     public String getNodeVersionInfo() {
         return VersionInfo.getVersion() + " [ r" + VersionInfo.getRevision() + " ] @ " + VersionInfo.getDate();
     }
 
+    @Override
     public int getRunningPipelineCount() {
         return controllers.size();
     }
 
+    @Override
     public List<Long> getRunningPipelines() {
         return new ArrayList<Long>(controllers.keySet());
     }
 
+    @Override
     public int getThreadActiveSize() {
         if (executorService instanceof ThreadPoolExecutor) {
             ThreadPoolExecutor pool = (ThreadPoolExecutor) executorService;
@@ -302,6 +344,7 @@ public class OtterController implements NodeTaskListener, OtterControllerMBean {
         return 0;
     }
 
+    @Override
     public int getThreadPoolSize() {
         if (executorService instanceof ThreadPoolExecutor) {
             ThreadPoolExecutor pool = (ThreadPoolExecutor) executorService;
@@ -311,6 +354,7 @@ public class OtterController implements NodeTaskListener, OtterControllerMBean {
         return 0;
     }
 
+    @Override
     public void setThreadPoolSize(int size) {
         if (executorService instanceof ThreadPoolExecutor) {
             ThreadPoolExecutor pool = (ThreadPoolExecutor) executorService;
@@ -319,57 +363,62 @@ public class OtterController implements NodeTaskListener, OtterControllerMBean {
         }
     }
 
+    @Override
     public void setProfile(boolean profile) {
         stageAggregationCollector.setProfiling(profile);
     }
 
+    @Override
     public boolean isSelectRunning(Long pipelineId) {
         return controllers.get(pipelineId).containsKey(StageType.SELECT);
     }
 
+    @Override
     public boolean isExtractRunning(Long pipelineId) {
         return controllers.get(pipelineId).containsKey(StageType.EXTRACT);
     }
 
+    @Override
     public boolean isTransformRunning(Long pipelineId) {
         return controllers.get(pipelineId).containsKey(StageType.TRANSFORM);
     }
-
+    @Override
     public boolean isLoadRunning(Long pipelineId) {
         return controllers.get(pipelineId).containsKey(StageType.LOAD);
     }
-
+    @Override
     public String selectStageAggregation(Long pipelineId) {
         return stageAggregationCollector.histogram(pipelineId, StageType.SELECT);
     }
-
+    @Override
     public String extractStageAggregation(Long pipelineId) {
         return stageAggregationCollector.histogram(pipelineId, StageType.EXTRACT);
     }
-
+    @Override
     public String transformStageAggregation(Long pipelineId) {
         return stageAggregationCollector.histogram(pipelineId, StageType.TRANSFORM);
     }
-
+    @Override
     public String loadStageAggregation(Long pipelineId) {
         return stageAggregationCollector.histogram(pipelineId, StageType.LOAD);
     }
-
+    @Override
     public String selectPendingProcess(Long pipelineId) {
         return pendingProcess(pipelineId, StageType.SELECT);
     }
-
+    @Override
     public String extractPendingProcess(Long pipelineId) {
         return pendingProcess(pipelineId, StageType.EXTRACT);
     }
-
+    @Override
     public String transformPendingProcess(Long pipelineId) {
         return pendingProcess(pipelineId, StageType.TRANSFORM);
     }
-
+    @Override
     public String loadPendingProcess(Long pipelineId) {
         return pendingProcess(pipelineId, StageType.LOAD);
     }
+
 
     private String pendingProcess(Long pipelineId, StageType stage) {
         GlobalTask task = controllers.get(pipelineId).get(stage);

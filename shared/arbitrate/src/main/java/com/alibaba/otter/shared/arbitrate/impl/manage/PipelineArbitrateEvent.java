@@ -30,7 +30,7 @@ import com.alibaba.otter.shared.common.utils.zookeeper.ZkClientx;
 
 /**
  * 针对pipeline管理的相关信号操作
- * 
+ *
  * @author jianghang 2011-8-31 下午07:34:11
  */
 public class PipelineArbitrateEvent implements ArbitrateEvent {
@@ -48,7 +48,8 @@ public class PipelineArbitrateEvent implements ArbitrateEvent {
         String lockRootPath = ManagePathUtils.getLockRoot(channelId, pipelineId);
         String loadLockPath = lockRootPath + "/" + ArbitrateConstants.NODE_LOCK_LOAD;
         try {
-            zookeeper.createPersistent(path, true);//创建父节点
+            //创建父节点
+            zookeeper.createPersistent(path, true);
             zookeeper.create(processRootPath, new byte[0], CreateMode.PERSISTENT);
             zookeeper.create(terminRootPath, new byte[0], CreateMode.PERSISTENT);
             zookeeper.create(remedyRootPath, new byte[0], CreateMode.PERSISTENT);
@@ -73,17 +74,23 @@ public class PipelineArbitrateEvent implements ArbitrateEvent {
         String lockRootPath = ManagePathUtils.getLockRoot(channelId, pipelineId);
         String loadLockPath = lockRootPath + "/" + ArbitrateConstants.NODE_LOCK_LOAD;
         try {
-            zookeeper.deleteRecursive(loadLockPath); // 删除节点，不关心版本
-            zookeeper.deleteRecursive(lockRootPath); // 删除节点，不关心版本
-            zookeeper.deleteRecursive(terminRootPath); // 删除节点，不关心版本
-            zookeeper.deleteRecursive(remedyRootPath); // 删除节点，不关心版本
-            zookeeper.deleteRecursive(processRootPath); // 删除节点，不关心版本
-            zookeeper.deleteRecursive(path); // 删除节点，不关心版本
+            // 删除节点，不关心版本
+            zookeeper.deleteRecursive(loadLockPath);
+            // 删除节点，不关心版本
+            zookeeper.deleteRecursive(lockRootPath);
+            // 删除节点，不关心版本
+            zookeeper.deleteRecursive(terminRootPath);
+            // 删除节点，不关心版本
+            zookeeper.deleteRecursive(remedyRootPath);
+            // 删除节点，不关心版本
+            zookeeper.deleteRecursive(processRootPath);
+            // 删除节点，不关心版本
+            zookeeper.deleteRecursive(path);
         } catch (ZkNoNodeException e) {
             // 如果节点已经不存在，则不抛异常
             // ignore
         } catch (ZkException e) {
-            throw new ArbitrateException("Pipeline_destory", pipelineId.toString(), e);
+            throw new ArbitrateException("Pipeline_destroy", pipelineId.toString(), e);
         }
     }
 

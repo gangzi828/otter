@@ -41,52 +41,60 @@ import com.google.common.collect.OtterMigrateMap;
 
 /**
  * task节点对应的config对象管理服务
- * 
+ *
  * @author jianghang
  */
 public class ConfigClientServiceImpl implements InternalConfigClientService, ArbitrateConfig, InitializingBean {
 
-    private static final String                NID_NAME       = "nid";
-    private static final Long                  DEFAULT_PERIOD = 60 * 1000L;
-    private static final Logger                logger         = LoggerFactory.getLogger(ConfigClientService.class);
+    private static final String NID_NAME = "nid";
+    private static final Long DEFAULT_PERIOD = 60 * 1000L;
+    private static final Logger logger = LoggerFactory.getLogger(ConfigClientService.class);
 
-    private Long                               timeout        = DEFAULT_PERIOD;
-    private Long                               nid;
-    private NodeCommmunicationClient           nodeCommmunicationClient;
+    private Long timeout = DEFAULT_PERIOD;
+    private Long nid;
+    private NodeCommmunicationClient nodeCommmunicationClient;
     private RefreshMemoryMirror<Long, Channel> channelCache;
-    private Map<Long, Long>                    channelMapping;                                                     // 将pipelineId映射为channelId
-    private RefreshMemoryMirror<Long, Node>    nodeCache;
+    /**
+     * 将pipelineId映射为channelId
+     */
+    private Map<Long, Long> channelMapping;
+    private RefreshMemoryMirror<Long, Node> nodeCache;
 
-    public ConfigClientServiceImpl(){
+    public ConfigClientServiceImpl() {
         // 注册一下事件处理
         ArbitrateConfigRegistry.regist(this);
     }
 
+    @Override
     public Node currentNode() {
         Node node = nodeCache.get(nid);
         if (node == null) {
             throw new ConfigException("nid:" + nid + " in manager[" + nodeCommmunicationClient.getManagerAddress()
-                                      + "]is not found!");
+                    + "]is not found!");
         }
 
         return node;
     }
 
+    @Override
     public Channel findChannel(Long channelId) {
         return channelCache.get(channelId);
     }
 
+    @Override
     public Channel findChannelByPipelineId(Long pipelineId) {
         Long channelId = channelMapping.get(pipelineId);
         return channelCache.get(channelId);
     }
 
+    @Override
     public Pipeline findOppositePipeline(Long pipelineId) {
         Long channelId = channelMapping.get(pipelineId);
         Channel channel = channelCache.get(channelId);
         List<Pipeline> pipelines = channel.getPipelines();
         for (Pipeline pipeline : pipelines) {
-            if (pipeline.getId().equals(pipelineId) == false) {// 这里假定pipeline只有两个
+            // 这里假定pipeline只有两个
+            if (pipeline.getId().equals(pipelineId) == false) {
                 return pipeline;
             }
         }
@@ -94,6 +102,7 @@ public class ConfigClientServiceImpl implements InternalConfigClientService, Arb
         return null;
     }
 
+    @Override
     public Pipeline findPipeline(Long pipelineId) {
         Long channelId = channelMapping.get(pipelineId);
         Channel channel = channelCache.get(channelId);
@@ -107,10 +116,12 @@ public class ConfigClientServiceImpl implements InternalConfigClientService, Arb
         throw new ConfigException("no pipeline for pipelineId[" + pipelineId + "]");
     }
 
+    @Override
     public Node findNode(Long nid) {
         return nodeCache.get(nid);
     }
 
+    @Override
     public void afterPropertiesSet() throws Exception {
         // 获取一下nid变量
         String nid = System.getProperty(NID_NAME);
@@ -130,8 +141,10 @@ public class ConfigClientServiceImpl implements InternalConfigClientService, Arb
                     Object obj = nodeCommmunicationClient.callManager(event);
                     if (obj != null && obj instanceof Channel) {
                         Channel channel = (Channel) obj;
-                        updateMapping(channel, pipelineId);// 排除下自己
-                        channelCache.put(channel.getId(), channel);// 更新下channelCache
+                        // 排除下自己
+                        updateMapping(channel, pipelineId);
+                        // 更新下channelCache
+                        channelCache.put(channel.getId(), channel);
                         return channel.getId();
                     }
                 } catch (Exception e) {
@@ -184,6 +197,7 @@ public class ConfigClientServiceImpl implements InternalConfigClientService, Arb
         });
     }
 
+    @Override
     public void createOrUpdateChannel(Channel channel) {
         channelCache.put(channel.getId(), channel);
         updateMapping(channel, null);

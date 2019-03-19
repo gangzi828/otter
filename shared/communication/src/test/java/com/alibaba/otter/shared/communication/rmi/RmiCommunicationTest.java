@@ -60,8 +60,7 @@ public class RmiCommunicationTest extends org.jtester.testng.JTester {
         endpoint1098.setAlwaysCreateRegistry(false);
         endpoint1098.initial();
 
-        CommunicationConnectionPoolFactory factory = new CommunicationConnectionPoolFactory(
-                                                                                            new RmiCommunicationConnectionFactory());
+        CommunicationConnectionPoolFactory factory = new CommunicationConnectionPoolFactory(new RmiCommunicationConnectionFactory());
         factory.initial();
         client = new DefaultCommunicationClientImpl(factory);
         client.initial();
