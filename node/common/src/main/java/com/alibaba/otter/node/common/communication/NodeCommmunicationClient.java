@@ -33,7 +33,7 @@ import com.alibaba.otter.shared.communication.core.model.Event;
 
 /**
  * 封装了基于communication通讯的工具
- * 
+ *
  * @author jianghang 2011-10-18 下午02:18:04
  * @version 4.0.0
  */
@@ -41,8 +41,8 @@ public class NodeCommmunicationClient implements DisposableBean {
 
     private CommunicationClient delegate;
     private ConfigClientService configClientService;
-    private List<String>        managerAddress;
-    private volatile int        index = 0;
+    private List<String> managerAddress;
+    private volatile int index = 0;
 
     /**
      * 指定对应的Node节点，进行event调用
@@ -53,7 +53,7 @@ public class NodeCommmunicationClient implements DisposableBean {
 
     /**
      * 指定对应的Node节点，进行event调用
-     * 
+     *
      * <pre>
      * 注意：该方法为异步调用
      * </pre>
@@ -68,7 +68,8 @@ public class NodeCommmunicationClient implements DisposableBean {
     public Object callManager(final Event event) {
         CommunicationException ex = null;
         Object object = null;
-        for (int i = index; i < index + managerAddress.size(); i++) { // 循环一次manager的所有地址
+        // 循环一次manager的所有地址
+        for (int i = index; i < index + managerAddress.size(); i++) {
             String address = managerAddress.get(i % managerAddress.size());
             try {
                 object = delegate.call(address, event);
@@ -79,13 +80,13 @@ public class NodeCommmunicationClient implements DisposableBean {
                 ex = e;
             }
         }
-
-        throw ex; // 走到这一步，说明肯定有出错了
+        // 走到这一步，说明肯定有出错了
+        throw ex;
     }
 
     /**
      * 指定manager，进行event调用
-     * 
+     *
      * <pre>
      * 注意：该方法为异步调用
      * </pre>
@@ -94,6 +95,7 @@ public class NodeCommmunicationClient implements DisposableBean {
         if (delegate instanceof DefaultCommunicationClientImpl) {
             ((DefaultCommunicationClientImpl) delegate).submit(new Runnable() {
 
+                @Override
                 public void run() {
                     Object obj = callManager(event);
                     callback.call(obj);
@@ -102,6 +104,12 @@ public class NodeCommmunicationClient implements DisposableBean {
         }
     }
 
+    /**
+     * 根据nid获取Node机器的IP
+     *
+     * @param nid
+     * @return
+     */
     private String convertToAddress(Long nid) {
         Node node = configClientService.findNode(nid);
         if (node.getParameters().getUseExternalIp()) {
@@ -111,6 +119,7 @@ public class NodeCommmunicationClient implements DisposableBean {
         }
     }
 
+    @Override
     public void destroy() throws Exception {
     }
 
@@ -124,7 +133,8 @@ public class NodeCommmunicationClient implements DisposableBean {
         String server = StringUtils.replace(managerAddress, ";", ",");
         String[] servers = StringUtils.split(server, ',');
         this.managerAddress = Arrays.asList(servers);
-        this.index = RandomUtils.nextInt(this.managerAddress.size()); // 随机选择一台机器
+        // 随机选择一台机器
+        this.index = RandomUtils.nextInt(this.managerAddress.size());
     }
 
     public void setConfigClientService(ConfigClientService configClientService) {

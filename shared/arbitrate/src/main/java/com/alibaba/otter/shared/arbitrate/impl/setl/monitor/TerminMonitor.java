@@ -62,6 +62,7 @@ public class TerminMonitor extends ArbitrateLifeCycle implements Monitor {
         MonitorScheduler.register(this);
     }
 
+    @Override
     public void reload() {
         try {
             if (logger.isDebugEnabled()) {

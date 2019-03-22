@@ -51,6 +51,7 @@ public class DubboCommunicationEndpoint extends AbstractCommunicationEndpoint {
         this.port = port;
     }
 
+    @Override
     public void initial() {
         // 构造对应的url， String.valueOf() 为避免数字包含千位符
         String url = MessageFormat.format(DUBBO_SERVICE_URL, String.valueOf(port), String.valueOf(payload));

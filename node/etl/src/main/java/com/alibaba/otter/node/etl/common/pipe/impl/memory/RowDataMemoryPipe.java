@@ -45,36 +45,40 @@ import com.alibaba.otter.shared.etl.model.Identity;
 
 public class RowDataMemoryPipe extends AbstractMemoryPipe<DbBatch, MemoryPipeKey> {
 
-    private static final Logger logger      = LoggerFactory.getLogger(RowDataMemoryPipe.class);
+    private static final Logger logger = LoggerFactory.getLogger(RowDataMemoryPipe.class);
     private static final String DATE_FORMAT = "yyyy-MM-dd-HH-mm-ss";
-    private int                 retry       = 3;
-    private String              downloadDir;
+    private int retry = 3;
+    private String downloadDir;
 
+    @Override
     public MemoryPipeKey put(DbBatch data) {
         MemoryPipeKey key = new MemoryPipeKey();
         key.setIdentity(data.getRowBatch().getIdentity());
-        // if (data.getRoot() == null && data.getFileBatch() != null
-        // && !CollectionUtils.isEmpty(data.getFileBatch().getFiles())) {
-        // logger.warn("Identity[{}] memory pipe exist fileBatch!",
-        // key.getIdentity());
-        // // data.setRoot(prepareFile(data.getFileBatch()));
-        // }
+
         key.setDataType(PipeDataType.DB_BATCH);
         cache.put(key, data);
         return key;
     }
 
+    @Override
     public DbBatch get(MemoryPipeKey key) {
         return cache.remove(key);
     }
 
-    // 处理对应的附件
+
+    /**
+     * 处理对应的附件
+     *
+     * @param fileBatch
+     * @return
+     */
     @SuppressWarnings("unused")
     private File prepareFile(FileBatch fileBatch) {
         // 处理构造对应的文件url
         String dirname = buildFileName(fileBatch.getIdentity(), ClassUtils.getShortClassName(fileBatch.getClass()));
         File dir = new File(downloadDir, dirname);
-        NioUtils.create(dir, false, 3);// 创建父目录
+        // 创建父目录
+        NioUtils.create(dir, false, 3);
         // 压缩对应的文件数据
         List<FileData> fileDatas = fileBatch.getFiles();
 
@@ -94,11 +98,13 @@ public class RowDataMemoryPipe extends AbstractMemoryPipe<DbBatch, MemoryPipeKey
                 continue;
             }
             File entry = new File(dir, entryName);
-            NioUtils.create(entry.getParentFile(), false, retry);// 尝试创建父路径
+            // 尝试创建父路径
+            NioUtils.create(entry.getParentFile(), false, retry);
             FileOutputStream output = null;
             try {
                 output = new FileOutputStream(entry);
-                NioUtils.copy(input, output);// 输出到压缩流中
+                // 输出到压缩流中
+                NioUtils.copy(input, output);
             } catch (Exception e) {
                 throw new PipeException("prepareFile error for file[" + entry.getPath() + "]");
             } finally {
@@ -135,14 +141,20 @@ public class RowDataMemoryPipe extends AbstractMemoryPipe<DbBatch, MemoryPipeKey
         }
     }
 
-    // 构造文件名
+    /**
+     * 构造文件名
+     * @param identity
+     * @param prefix
+     * @return
+     */
     private String buildFileName(Identity identity, String prefix) {
         Date now = new Date();
         String time = new SimpleDateFormat(DATE_FORMAT).format(now);
         return MessageFormat.format("{0}-{1}-{2}-{3}-{4}", prefix, time, String.valueOf(identity.getChannelId()),
-                                    String.valueOf(identity.getPipelineId()), String.valueOf(identity.getProcessId()));
+                String.valueOf(identity.getPipelineId()), String.valueOf(identity.getProcessId()));
     }
 
+    @Override
     public void afterPropertiesSet() throws Exception {
         super.afterPropertiesSet();
         Assert.notNull(downloadDir);

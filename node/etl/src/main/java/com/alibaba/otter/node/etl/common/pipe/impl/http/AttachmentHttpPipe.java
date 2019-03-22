@@ -68,6 +68,7 @@ public class AttachmentHttpPipe extends AbstractHttpPipe<Object, HttpPipeKey> im
         }
     }
 
+    @Override
     public File get(HttpPipeKey key) throws PipeException {
         return unpackFile(key);
     }

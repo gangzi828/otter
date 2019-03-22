@@ -16,9 +16,9 @@
 
 package com.alibaba.otter.shared.arbitrate.impl.setl.rpc;
 
+import com.alibaba.otter.shared.arbitrate.impl.communication.ArbitrateCommunicationClient;
 import org.springframework.util.Assert;
 
-import com.alibaba.otter.shared.arbitrate.impl.communication.ArbitrateCommmunicationClient;
 import com.alibaba.otter.shared.arbitrate.impl.config.ArbitrateConfigUtils;
 import com.alibaba.otter.shared.arbitrate.impl.setl.ArbitrateFactory;
 import com.alibaba.otter.shared.arbitrate.model.EtlEventData;
@@ -29,15 +29,15 @@ import com.alibaba.otter.shared.communication.model.arbitrate.StageSingleEvent;
 
 /**
  * 分发rpc的请求，根据不同的pipelineId分发到不同的{@link RpcStageController}实例上去
- * 
+ *
  * @author jianghang 2012-9-29 上午10:26:38
  * @version 4.1.0
  */
 public class RpcStageEventDispatcher {
 
-    private ArbitrateCommmunicationClient arbitrateCommmunicationClient;
+    private ArbitrateCommunicationClient arbitrateCommunicationClient;
 
-    public RpcStageEventDispatcher(){
+    public RpcStageEventDispatcher() {
         CommunicationRegistry.regist(ArbitrateEventType.stageSingle, this);
     }
 
@@ -62,11 +62,12 @@ public class RpcStageEventDispatcher {
         event.setPipelineId(eventData.getPipelineId());
         event.setStage(stage);
         event.setData(eventData);
-
-        if (isLocal(eventData.getNextNid())) {// 判断是否为本地jvm
+        // 判断是否为本地jvm
+        if (isLocal(eventData.getNextNid())) {
             return onStageSingle(event);
         } else {
-            return (Boolean) arbitrateCommmunicationClient.call(eventData.getNextNid(), event);// rpc通知下一个节点
+            // rpc通知下一个节点
+            return (Boolean) arbitrateCommunicationClient.call(eventData.getNextNid(), event);
         }
     }
 
@@ -74,8 +75,8 @@ public class RpcStageEventDispatcher {
         return ArbitrateConfigUtils.getCurrentNid().equals(targetNodeId);
     }
 
-    public void setArbitrateCommmunicationClient(ArbitrateCommmunicationClient arbitrateCommmunicationClient) {
-        this.arbitrateCommmunicationClient = arbitrateCommmunicationClient;
+    public void setArbitrateCommunicationClient(ArbitrateCommunicationClient arbitrateCommunicationClient) {
+        this.arbitrateCommunicationClient = arbitrateCommunicationClient;
     }
 
 }

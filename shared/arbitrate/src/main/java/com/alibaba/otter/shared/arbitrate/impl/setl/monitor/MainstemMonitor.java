@@ -51,61 +51,63 @@ import com.alibaba.otter.shared.common.utils.zookeeper.ZkClientx;
 import com.google.common.collect.Lists;
 
 /**
- * 主备切换控制器，active的只有一位，所有的standy都有平等的选择权
- * 
+ * 主备切换控制器，active的只有一位，所有的standby都有平等的选择权
+ *
  * <pre>
  * 1. active一旦产生，出现瞬断，在规定的时间内，其享有优先权
  * 2. active一旦产生，如果主动释放其active权利，其他的standby的节点就有机会立即参与选举
  * </pre>
- * 
+ *
  * @author jianghang 2012-10-1 下午02:19:22
  * @version 4.1.0
  */
 public class MainstemMonitor extends ArbitrateLifeCycle implements Monitor {
 
-    private static final Logger        logger       = LoggerFactory.getLogger(MainstemMonitor.class);
-    private ZkClientx                  zookeeper    = ZooKeeperClient.getInstance();
-    private ScheduledExecutorService   delayExector = Executors.newScheduledThreadPool(1);
-    private int                        delayTime    = 5;
+    private static final Logger logger = LoggerFactory.getLogger(MainstemMonitor.class);
+    private ZkClientx zookeeper = ZooKeeperClient.getInstance();
+    private ScheduledExecutorService delayExector = Executors.newScheduledThreadPool(1);
+    private int delayTime = 5;
     private volatile MainStemEventData activeData;
-    private IZkDataListener            dataListener;
-    private BooleanMutex               mutex        = new BooleanMutex(false);
-    private volatile boolean           release      = false;
-    private List<MainstemListener>     listeners    = Collections.synchronizedList(new ArrayList<MainstemListener>());
+    private IZkDataListener dataListener;
+    private BooleanMutex mutex = new BooleanMutex(false);
+    private volatile boolean release = false;
+    private List<MainstemListener> listeners = Collections.synchronizedList(new ArrayList<MainstemListener>());
 
-    public MainstemMonitor(Long pipelineId){
+    public MainstemMonitor(Long pipelineId) {
         super(pipelineId);
         // initMainstem();
         dataListener = new IZkDataListener() {
 
+            @Override
             public void handleDataChange(String dataPath, Object data) throws Exception {
                 MDC.put(ArbitrateConstants.splitPipelineLogFileKey, String.valueOf(getPipelineId()));
                 MainStemEventData mainStemData = JsonUtils.unmarshalFromByte((byte[]) data, MainStemEventData.class);
                 if (!isMine(mainStemData.getNid())) {
                     mutex.set(false);
                 }
-
-                if (!mainStemData.isActive() && isMine(mainStemData.getNid())) { // 说明出现了主动释放的操作，并且本机之前是active
+                // 说明出现了主动释放的操作，并且本机之前是active
+                if (!mainStemData.isActive() && isMine(mainStemData.getNid())) {
                     release = true;
-                    releaseMainstem();// 彻底释放mainstem
+                    // 彻底释放mainstem
+                    releaseMainstem();
                 }
 
-                activeData = (MainStemEventData) mainStemData;
+                activeData = mainStemData;
             }
 
+            @Override
             public void handleDataDeleted(String dataPath) throws Exception {
                 MDC.put(ArbitrateConstants.splitPipelineLogFileKey, String.valueOf(getPipelineId()));
                 mutex.set(false);
                 if (!release && isMine(activeData.getNid())) {
                     // 如果上一次active的状态就是本机，则即时触发一下active抢占
                     initMainstem();
-                    // } else if (!isMine(activeData.getNid()) && !activeData.isActive()) {
-                    // // 针对其他的节点，如果发现上一次的mainstem状态为非active状态，说明存在手工干预进行mainstem切换，可立马进行抢占mainstem
-                    // initMainstem();
+
                 } else {
                     // 否则就是等待delayTime，避免因网络瞬端或者zk异常，导致出现频繁的切换操作
                     delayExector.schedule(new Runnable() {
 
+                        @Override
                         public void run() {
                             initMainstem();
                         }
@@ -117,9 +119,11 @@ public class MainstemMonitor extends ArbitrateLifeCycle implements Monitor {
 
         String path = StagePathUtils.getMainStem(getPipelineId());
         zookeeper.subscribeDataChanges(path, dataListener);
-        MonitorScheduler.register(this, 5 * 60 * 1000L, 5 * 60 * 1000L); // 5分钟处理一次
+        // 5分钟处理一次
+        MonitorScheduler.register(this, 5 * 60 * 1000L, 5 * 60 * 1000L);
     }
 
+    @Override
     public void reload() {
         if (logger.isDebugEnabled()) {
             logger.debug("## reload mainstem pipeline[{}]", getPipelineId());
@@ -170,6 +174,7 @@ public class MainstemMonitor extends ArbitrateLifeCycle implements Monitor {
         }
     }
 
+    @Override
     public void destory() {
         super.destory();
 
@@ -199,7 +204,7 @@ public class MainstemMonitor extends ArbitrateLifeCycle implements Monitor {
 
     /**
      * 阻塞等待自己成为active，如果自己成为active，立马返回
-     * 
+     *
      * @throws InterruptedException
      */
     public void waitForActive() throws InterruptedException {

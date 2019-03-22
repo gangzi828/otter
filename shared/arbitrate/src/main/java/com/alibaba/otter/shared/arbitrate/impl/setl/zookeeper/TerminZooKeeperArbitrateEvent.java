@@ -16,6 +16,7 @@
 
 package com.alibaba.otter.shared.arbitrate.impl.setl.zookeeper;
 
+import com.alibaba.otter.shared.arbitrate.impl.communication.ArbitrateCommunicationClient;
 import org.I0Itec.zkclient.exception.ZkException;
 import org.I0Itec.zkclient.exception.ZkNoNodeException;
 import org.slf4j.Logger;
@@ -23,7 +24,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 
 import com.alibaba.otter.shared.arbitrate.exception.ArbitrateException;
-import com.alibaba.otter.shared.arbitrate.impl.communication.ArbitrateCommmunicationClient;
 import com.alibaba.otter.shared.arbitrate.impl.config.ArbitrateConfigUtils;
 import com.alibaba.otter.shared.arbitrate.impl.manage.ChannelArbitrateEvent;
 import com.alibaba.otter.shared.arbitrate.impl.setl.ArbitrateFactory;
@@ -50,7 +50,7 @@ public class TerminZooKeeperArbitrateEvent implements TerminArbitrateEvent {
     private static final Logger           logger    = LoggerFactory.getLogger(TerminZooKeeperArbitrateEvent.class);
 
     private ZkClientx                     zookeeper = ZooKeeperClient.getInstance();
-    private ArbitrateCommmunicationClient arbitrateCommmunicationClient;
+    private ArbitrateCommunicationClient arbitrateCommunicationClient;
     private NormalTerminProcess           normalTerminProcess;
     private WarningTerminProcess          warningTerminProcess;
     private ChannelArbitrateEvent         channelEvent;
@@ -169,7 +169,7 @@ public class TerminZooKeeperArbitrateEvent implements TerminArbitrateEvent {
                 // 发送关闭命令给manager
                 StopChannelEvent event = new StopChannelEvent();
                 event.setChannelId(channel.getId());
-                arbitrateCommmunicationClient.callManager(event);
+                arbitrateCommunicationClient.callManager(event);
             } else if (data.getType().isRestart()) {
                 boolean restarted = channelEvent.restart(channel.getId());
                 // 发送报警信息
@@ -182,8 +182,8 @@ public class TerminZooKeeperArbitrateEvent implements TerminArbitrateEvent {
 
     // ================== setter / getter ===================
 
-    public void setArbitrateCommmunicationClient(ArbitrateCommmunicationClient arbitrateCommmunicationClient) {
-        this.arbitrateCommmunicationClient = arbitrateCommmunicationClient;
+    public void setArbitrateCommunicationClient(ArbitrateCommunicationClient arbitrateCommunicationClient) {
+        this.arbitrateCommunicationClient = arbitrateCommunicationClient;
     }
 
     public void setNormalTerminProcess(NormalTerminProcess normalTerminProcess) {

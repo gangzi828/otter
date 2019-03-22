@@ -19,7 +19,7 @@
 	</bean>
 	
 	<!-- Node communication -->
-	<bean id="arbitrateCommmunicationClient" class="com.alibaba.otter.shared.arbitrate.impl.communication.ArbitrateCommmunicationClient" scope="singleton" >
+	<bean id="arbitrateCommunicationClient" class="com.alibaba.otter.shared.arbitrate.impl.communication.ArbitrateCommunicationClient" scope="singleton" >
 		<property name="delegate" ref="arbitrateCommunicationClient" />
 		<property name="managerAddress" value="${otter.manager.address:127.0.0.1:1099}" />
 	</bean>

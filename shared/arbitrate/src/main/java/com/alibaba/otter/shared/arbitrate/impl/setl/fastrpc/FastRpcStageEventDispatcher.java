@@ -16,9 +16,9 @@
 
 package com.alibaba.otter.shared.arbitrate.impl.setl.fastrpc;
 
+import com.alibaba.otter.shared.arbitrate.impl.communication.ArbitrateCommunicationClient;
 import org.springframework.util.Assert;
 
-import com.alibaba.otter.shared.arbitrate.impl.communication.ArbitrateCommmunicationClient;
 import com.alibaba.otter.shared.arbitrate.impl.config.ArbitrateConfigUtils;
 import com.alibaba.otter.shared.arbitrate.impl.setl.ArbitrateFactory;
 import com.alibaba.otter.shared.arbitrate.model.EtlEventData;
@@ -35,7 +35,7 @@ import com.alibaba.otter.shared.communication.model.arbitrate.StageSingleEvent;
  */
 public class FastRpcStageEventDispatcher {
 
-    private ArbitrateCommmunicationClient arbitrateCommmunicationClient;
+    private ArbitrateCommunicationClient arbitrateCommunicationClient;
 
     public FastRpcStageEventDispatcher(){
         CommunicationRegistry.regist(ArbitrateEventType.fastStageSingle, this);
@@ -67,7 +67,7 @@ public class FastRpcStageEventDispatcher {
         if (isLocal(eventData.getNextNid())) {// 判断是否为本地jvm
             return onStageSingle(event);
         } else {
-            return (Boolean) arbitrateCommmunicationClient.call(eventData.getNextNid(), event);// rpc通知下一个节点
+            return (Boolean) arbitrateCommunicationClient.call(eventData.getNextNid(), event);// rpc通知下一个节点
         }
     }
 
@@ -75,8 +75,8 @@ public class FastRpcStageEventDispatcher {
         return ArbitrateConfigUtils.getCurrentNid().equals(targetNodeId);
     }
 
-    public void setArbitrateCommmunicationClient(ArbitrateCommmunicationClient arbitrateCommmunicationClient) {
-        this.arbitrateCommmunicationClient = arbitrateCommmunicationClient;
+    public void setArbitrateCommunicationClient(ArbitrateCommunicationClient arbitrateCommunicationClient) {
+        this.arbitrateCommunicationClient = arbitrateCommunicationClient;
     }
 
 }

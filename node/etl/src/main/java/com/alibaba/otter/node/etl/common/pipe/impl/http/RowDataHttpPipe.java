@@ -62,17 +62,24 @@ import com.alibaba.otter.shared.etl.model.RowBatch;
  */
 public class RowDataHttpPipe extends AbstractHttpPipe<DbBatch, HttpPipeKey> {
 
+    @Override
     public HttpPipeKey put(final DbBatch data) throws PipeException {
         return saveDbBatch(data);
     }
 
+    @Override
     public DbBatch get(final HttpPipeKey key) throws PipeException {
         // 处理dbBatch数据
         return getDbBatch(key);
     }
 
     // ======================== help method ===================
-    // 保存对应的dbBatch
+
+    /**
+     * 保存对应的dbBatch
+     * @param dbBatch
+     * @return
+     */
     private HttpPipeKey saveDbBatch(DbBatch dbBatch) {
         RowBatch rowBatch = dbBatch.getRowBatch();
         // 转化为proto对象
@@ -125,7 +132,8 @@ public class RowDataHttpPipe extends AbstractHttpPipe<DbBatch, HttpPipeKey> {
                 rowDataBuilder.setHint(eventData.getHint());
             }
             rowDataBuilder.setWithoutSchema(eventData.isWithoutSchema());
-            rowBatchBuilder.addRows(rowDataBuilder.build());// 添加一条rowData记录
+            // 添加一条rowData记录
+            rowBatchBuilder.addRows(rowDataBuilder.build());
         }
 
         // 处理下FileBatch
@@ -147,8 +155,8 @@ public class RowDataHttpPipe extends AbstractHttpPipe<DbBatch, HttpPipeKey> {
             fileDataBuilder.setEventType(fileData.getEventType().getValue());
             fileDataBuilder.setSize(fileData.getSize());
             fileDataBuilder.setLastModifiedTime(fileData.getLastModifiedTime());
-
-            fileBatchBuilder.addFiles(fileDataBuilder.build());// 添加一条fileData记录
+            // 添加一条fileData记录
+            fileBatchBuilder.addFiles(fileDataBuilder.build());
         }
         // 处理构造对应的文件url
         String filename = buildFileName(rowBatch.getIdentity(), ClassUtils.getShortClassName(dbBatch.getClass()));
@@ -158,12 +166,16 @@ public class RowDataHttpPipe extends AbstractHttpPipe<DbBatch, HttpPipeKey> {
         try {
             output = new BufferedOutputStream(new FileOutputStream(file));
             com.alibaba.otter.node.etl.model.protobuf.BatchProto.RowBatch rowBatchProto = rowBatchBuilder.build();
-            output.write(ByteUtils.int2bytes(rowBatchProto.getSerializedSize()));// 输出大小
-            rowBatchProto.writeTo(output);// 输出row batch
+            // 输出大小
+            output.write(ByteUtils.int2bytes(rowBatchProto.getSerializedSize()));
+            // 输出row batch
+            rowBatchProto.writeTo(output);
 
             com.alibaba.otter.node.etl.model.protobuf.BatchProto.FileBatch fileBatchProto = fileBatchBuilder.build();
-            output.write(ByteUtils.int2bytes(fileBatchProto.getSerializedSize()));// 输出大小
-            fileBatchProto.writeTo(output); // 输出file batch
+            // 输出大小
+            output.write(ByteUtils.int2bytes(fileBatchProto.getSerializedSize()));
+            // 输出file batch
+            fileBatchProto.writeTo(output);
             output.flush();
         } catch (IOException e) {
             throw new PipeException("write_byte_error", e);
@@ -186,7 +198,11 @@ public class RowDataHttpPipe extends AbstractHttpPipe<DbBatch, HttpPipeKey> {
         return key;
     }
 
-    // 处理对应的dbBatch
+    /**
+     * 处理对应的dbBatch
+     * @param key
+     * @return
+     */
     private DbBatch getDbBatch(HttpPipeKey key) {
         String dataUrl = key.getUrl();
         Pipeline pipeline = configClientService.findPipeline(key.getIdentity().getPipelineId());
@@ -304,8 +320,9 @@ public class RowDataHttpPipe extends AbstractHttpPipe<DbBatch, HttpPipeKey> {
         column.setColumnValue(columnProto.getValue());
         column.setKey(columnProto.getIsPrimaryKey());
         column.setIndex(columnProto.getIndex());
-        column.setUpdate(columnProto.getIsUpdate());// add by ljh
-                                                    // 2012-08-30，标记变更字段
+        // 2012-08-30，标记变更字段
+        column.setUpdate(columnProto.getIsUpdate());
+
         return column;
     }
 
@@ -319,8 +336,9 @@ public class RowDataHttpPipe extends AbstractHttpPipe<DbBatch, HttpPipeKey> {
         if (keyColumn.getColumnValue() != null) {
             columnBuilder.setValue(keyColumn.getColumnValue());
         }
-        columnBuilder.setIsUpdate(keyColumn.isUpdate());// add by ljh
-                                                        // 2012-08-30，标记变更字段
+        // 2012-08-30，标记变更字段
+        columnBuilder.setIsUpdate(keyColumn.isUpdate());
+
         return columnBuilder.build();
     }
 
@@ -336,7 +354,11 @@ public class RowDataHttpPipe extends AbstractHttpPipe<DbBatch, HttpPipeKey> {
             String.valueOf(identity.getProcessId()));
     }
 
-    // 构造proto对象
+    /**
+     * 构造proto对象
+     * @param identity
+     * @return
+     */
     private BatchProto.Identity build(Identity identity) {
         BatchProto.Identity.Builder identityBuilder = BatchProto.Identity.newBuilder();
         identityBuilder.setChannelId(identity.getChannelId());
@@ -345,7 +367,11 @@ public class RowDataHttpPipe extends AbstractHttpPipe<DbBatch, HttpPipeKey> {
         return identityBuilder.build();
     }
 
-    // 从proto对象构造回object
+    /**
+     * 从proto对象构造回object
+     * @param identityProto
+     * @return
+     */
     private Identity build(BatchProto.Identity identityProto) {
         Identity identity = new Identity();
         identity.setChannelId(identityProto.getChannelId());

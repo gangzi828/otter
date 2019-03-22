@@ -114,6 +114,7 @@ public class StageMonitor extends ArbitrateLifeCycle implements Monitor {
         MonitorScheduler.unRegister(this);
     }
 
+    @Override
     public void reload() {
         try {
             if (logger.isDebugEnabled()) {

@@ -74,6 +74,7 @@ public class NodeMonitor implements Monitor {
         MonitorScheduler.register(this);
     }
 
+    @Override
     public void reload() {
         try {
             initNodes();// 更新数据

@@ -24,13 +24,13 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import com.alibaba.otter.shared.arbitrate.impl.communication.ArbitrateCommunicationClient;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.alibaba.otter.common.push.AbstractSubscribeManager;
 import com.alibaba.otter.common.push.SubscribeCallback;
-import com.alibaba.otter.shared.arbitrate.impl.communication.ArbitrateCommmunicationClient;
 import com.alibaba.otter.shared.common.model.config.ConfigException;
 import com.alibaba.otter.shared.common.utils.cache.RefreshMemoryMirror;
 import com.alibaba.otter.shared.common.utils.cache.RefreshMemoryMirror.ComputeFunction;
@@ -51,7 +51,7 @@ public class MediaSubscribeManager extends AbstractSubscribeManager {
     private Map<String, Runnable>               runnableMap    = new ConcurrentHashMap<String, Runnable>();
     private Long                                timeout        = DEFAULT_PERIOD;
     private RefreshMemoryMirror<String, String> matrixCache;
-    private ArbitrateCommmunicationClient       arbitrateCommmunicationClient;
+    private ArbitrateCommunicationClient arbitrateCommunicationClient;
 
     private int                                 poolSize       = 8;
     private ScheduledThreadPoolExecutor         executor;
@@ -64,7 +64,7 @@ public class MediaSubscribeManager extends AbstractSubscribeManager {
                 FindMediaEvent event = new FindMediaEvent();
                 event.setDataId(key);
                 try {
-                    Object obj = arbitrateCommmunicationClient.callManager(event);
+                    Object obj = arbitrateCommunicationClient.callManager(event);
                     if (obj != null && obj instanceof String) {
                         final String value = (String) obj;
                         if (!StringUtils.equalsIgnoreCase(oldValue, value)) {
@@ -185,8 +185,8 @@ public class MediaSubscribeManager extends AbstractSubscribeManager {
         }
     }
 
-    public void setArbitrateCommmunicationClient(ArbitrateCommmunicationClient arbitrateCommmunicationClient) {
-        this.arbitrateCommmunicationClient = arbitrateCommmunicationClient;
+    public void setArbitrateCommunicationClient(ArbitrateCommunicationClient arbitrateCommunicationClient) {
+        this.arbitrateCommunicationClient = arbitrateCommunicationClient;
     }
 
 }

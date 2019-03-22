@@ -19,6 +19,7 @@ package com.alibaba.otter.shared.arbitrate.demo.multi;
 import java.io.IOException;
 import java.util.Arrays;
 
+import com.alibaba.otter.shared.arbitrate.impl.communication.ArbitrateCommunicationClient;
 import mockit.Mock;
 import mockit.Mockit;
 
@@ -36,7 +37,6 @@ import com.alibaba.otter.shared.arbitrate.demo.servcie.SelectServiceDemo;
 import com.alibaba.otter.shared.arbitrate.demo.servcie.TerminProcessDemo;
 import com.alibaba.otter.shared.arbitrate.demo.servcie.TransformServiceDemo;
 import com.alibaba.otter.shared.arbitrate.impl.ArbitrateConstants;
-import com.alibaba.otter.shared.arbitrate.impl.communication.ArbitrateCommmunicationClient;
 import com.alibaba.otter.shared.arbitrate.impl.config.ArbitrateConfigUtils;
 import com.alibaba.otter.shared.arbitrate.impl.manage.ChannelArbitrateEvent;
 import com.alibaba.otter.shared.arbitrate.impl.manage.NodeArbitrateEvent;
@@ -146,7 +146,7 @@ public class ArbitrateForwardIntegration extends BaseEventTest {
 
         });
 
-        Mockit.setUpMock(ArbitrateCommmunicationClient.class, new Object() {
+        Mockit.setUpMock(ArbitrateCommunicationClient.class, new Object() {
 
             @Mock
             public Object callManager(final Event event) {

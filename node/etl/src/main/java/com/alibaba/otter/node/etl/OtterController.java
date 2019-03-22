@@ -88,7 +88,7 @@ public class OtterController implements NodeTaskListener, OtterControllerMBean {
      */
     private ArbitrateManageService arbitrateManageService;
     /**
-     * 仲裁器资源
+     * 仲裁器事件资源
      */
     private ArbitrateEventService arbitrateEventService;
 

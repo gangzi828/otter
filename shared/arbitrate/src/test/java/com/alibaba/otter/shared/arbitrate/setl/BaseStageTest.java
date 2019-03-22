@@ -31,7 +31,7 @@ import org.testng.annotations.BeforeMethod;
 
 import com.alibaba.otter.shared.arbitrate.BaseEventTest;
 import com.alibaba.otter.shared.arbitrate.impl.ArbitrateConstants;
-import com.alibaba.otter.shared.arbitrate.impl.communication.ArbitrateCommmunicationClient;
+import com.alibaba.otter.shared.arbitrate.impl.communication.ArbitrateCommunicationClient;
 import com.alibaba.otter.shared.arbitrate.impl.config.ArbitrateConfigUtils;
 import com.alibaba.otter.shared.arbitrate.impl.manage.ChannelArbitrateEvent;
 import com.alibaba.otter.shared.arbitrate.impl.manage.NodeArbitrateEvent;
@@ -131,7 +131,7 @@ public class BaseStageTest extends BaseEventTest {
 
         });
 
-        Mockit.setUpMock(ArbitrateCommmunicationClient.class, new Object() {
+        Mockit.setUpMock(ArbitrateCommunicationClient.class, new Object() {
 
             @Mock
             public Object callManager(final Event event) {

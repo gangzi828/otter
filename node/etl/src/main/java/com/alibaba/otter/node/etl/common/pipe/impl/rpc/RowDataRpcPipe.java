@@ -35,7 +35,9 @@ public class RowDataRpcPipe extends AbstractRpcPipe<DbBatch, RpcPipeKey> {
     private ConfigClientService      configClientService;
     private NodeCommmunicationClient nodeCommmunicationClient;
 
-    // 基于rowData rpc的eventType
+    /**
+     * 基于rowData rpc的eventType
+     */
     public static enum RowDataRpc implements EventType {
         get
     }
@@ -45,6 +47,7 @@ public class RowDataRpcPipe extends AbstractRpcPipe<DbBatch, RpcPipeKey> {
         CommunicationRegistry.regist(RowDataRpc.get, this);
     }
 
+    @Override
     public RpcPipeKey put(DbBatch data) throws PipeException {
         RpcPipeKey key = new RpcPipeKey();
         key.setIdentity(data.getRowBatch().getIdentity());
@@ -54,14 +57,19 @@ public class RowDataRpcPipe extends AbstractRpcPipe<DbBatch, RpcPipeKey> {
         return key;
     }
 
+    @Override
     public DbBatch get(RpcPipeKey key) throws PipeException {
         RpcEvent event = new RpcEvent(RowDataRpc.get);
         event.setKey(key);
         return (DbBatch) nodeCommmunicationClient.call(key.getNid(), event);
     }
 
+    /**
+     * 处理rpc调用事件
+     * @param event
+     * @return
+     */
     @SuppressWarnings("unused")
-    // 处理rpc调用事件
     private DbBatch onGet(RpcEvent event) {
         // 不建议使用remove，rpc调用容易有retry请求，导致第二次拿到的数据为null
         return cache.remove(event.getKey());

@@ -38,9 +38,9 @@ import com.alibaba.otter.shared.communication.core.model.Event;
  * @author jianghang 2011-10-18 下午02:18:04
  * @version 4.0.0
  */
-public class ArbitrateCommmunicationClient {
+public class ArbitrateCommunicationClient {
 
-    private static final Logger logger = LoggerFactory.getLogger(ArbitrateCommmunicationClient.class);
+    private static final Logger logger = LoggerFactory.getLogger(ArbitrateCommunicationClient.class);
     private CommunicationClient delegate;
     private List<String>        managerAddress;
     private volatile int        index  = 0;
@@ -123,7 +123,8 @@ public class ArbitrateCommmunicationClient {
         String server = StringUtils.replace(managerAddress, ";", ",");
         String[] servers = StringUtils.split(server, ',');
         this.managerAddress = Arrays.asList(servers);
-        this.index = RandomUtils.nextInt(this.managerAddress.size()); // 随机选择一台机器
+        // 随机选择一台机器
+        this.index = RandomUtils.nextInt(this.managerAddress.size());
     }
 
 }

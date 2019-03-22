@@ -45,27 +45,29 @@ import com.google.common.collect.Lists;
 
 /**
  * task节点对应的任务列表管理器
- * 
+ *
  * @author jianghang
  */
 public class NodeTaskServiceImpl implements NodeTaskService, InitializingBean {
 
-    private static final Logger         logger    = LoggerFactory.getLogger(NodeTaskService.class);
+    private static final Logger logger = LoggerFactory.getLogger(NodeTaskService.class);
 
-    private NodeCommmunicationClient    nodeCommmunicationClient;
+    private NodeCommmunicationClient nodeCommmunicationClient;
     private InternalConfigClientService configClientService;
-    private List<NodeTask>              allTasks  = Collections.synchronizedList(new ArrayList<NodeTask>());
-    private List<NodeTask>              incTasks  = Collections.synchronizedList(new ArrayList<NodeTask>());
-    private List<NodeTaskListener>      listeners = Collections.synchronizedList(new ArrayList<NodeTaskListener>());
+    private List<NodeTask> allTasks = Collections.synchronizedList(new ArrayList<NodeTask>());
+    private List<NodeTask> incTasks = Collections.synchronizedList(new ArrayList<NodeTask>());
+    private List<NodeTaskListener> listeners = Collections.synchronizedList(new ArrayList<NodeTaskListener>());
 
-    public NodeTaskServiceImpl(){
+    public NodeTaskServiceImpl() {
         CommunicationRegistry.regist(ConfigEventType.notifyChannel, this);
     }
 
+    @Override
     public synchronized List<NodeTask> listAllNodeTasks() {
         return allTasks;
     }
 
+    @Override
     public void afterPropertiesSet() throws Exception {
         // 初始化时调用manager获取channel任务
         initNodeTask();
@@ -80,7 +82,8 @@ public class NodeTaskServiceImpl implements NodeTaskService, InitializingBean {
         if (logger.isInfoEnabled()) {
             logger.info("##merge all NodeTask {}", printNodeTasks(tasks));
         }
-        merge(allTasks, tasks);// inc获取后直接丢到all的队列里
+        // inc获取后直接丢到all的队列里
+        merge(allTasks, tasks);
         if (logger.isInfoEnabled()) {
             logger.info("##now all NodeTask {}", printNodeTasks(allTasks));
         }
@@ -88,6 +91,9 @@ public class NodeTaskServiceImpl implements NodeTaskService, InitializingBean {
         return tasks;
     }
 
+    /**
+     * 初始化时从Manager获取任务列表
+     */
     private void initNodeTask() {
         // 从manager下获取一下对应的任务列表
         Node node = configClientService.currentNode();
@@ -110,8 +116,10 @@ public class NodeTaskServiceImpl implements NodeTaskService, InitializingBean {
         }
 
         List<NodeTask> tasks = new ArrayList<NodeTask>(incTasks);
-        merge(tasks, addTasks);// 合并数据到incTasks中
-        merge(incTasks, retain(tasks, allTasks));// 过滤掉allTasks中已有的相同的stage/event类型，比如已经有CREATE动作，不需要重复给出
+        // 合并数据到incTasks中
+        merge(tasks, addTasks);
+        // 过滤掉allTasks中已有的相同的stage/event类型，比如已经有CREATE动作，不需要重复给出
+        merge(incTasks, retain(tasks, allTasks));
         if (logger.isInfoEnabled()) {
             logger.info("##now inc NodeTask {}", printNodeTasks(incTasks));
         }
@@ -150,7 +158,8 @@ public class NodeTaskServiceImpl implements NodeTaskService, InitializingBean {
         for (Pipeline pipeline : pipelines) {
             List<Node> sNodes = pipeline.getSelectNodes();
             for (Node node : sNodes) {
-                if (nid.equals(node.getId())) {// 判断是否为当前的nid
+                // 判断是否为当前的nid
+                if (nid.equals(node.getId())) {
                     NodeTask task = new NodeTask();
                     task.setPipeline(pipeline);
                     NodeTask matchTask = getMatchTask(tasks, task);
@@ -167,7 +176,8 @@ public class NodeTaskServiceImpl implements NodeTaskService, InitializingBean {
 
             List<Node> eNodes = pipeline.getExtractNodes();
             for (Node node : eNodes) {
-                if (nid.equals(node.getId())) {// 判断是否为当前的nid
+                // 判断是否为当前的nid
+                if (nid.equals(node.getId())) {
                     NodeTask task = new NodeTask();
                     task.setPipeline(pipeline);
                     NodeTask matchTask = getMatchTask(tasks, task);
@@ -183,7 +193,8 @@ public class NodeTaskServiceImpl implements NodeTaskService, InitializingBean {
 
             List<Node> tlNodes = pipeline.getLoadNodes();
             for (Node node : tlNodes) {
-                if (nid.equals(node.getId())) {// 判断是否为当前的nid
+                // 判断是否为当前的nid
+                if (nid.equals(node.getId())) {
                     NodeTask task = new NodeTask();
                     task.setPipeline(pipeline);
                     NodeTask matchTask = getMatchTask(tasks, task);
@@ -221,16 +232,18 @@ public class NodeTaskServiceImpl implements NodeTaskService, InitializingBean {
                     TaskEvent event = events.get(i);
                     if (event.isCreate()) {
                         deletePipelineTask.getStage().add(stage);
-                        deletePipelineTask.getEvent().add(TaskEvent.DELETE);// 添加为关闭
+                        // 添加为关闭
+                        deletePipelineTask.getEvent().add(TaskEvent.DELETE);
                     }
                 }
 
                 tasks.add(deletePipelineTask);
             }
-
-            if (pipelineIds.contains(pipeline.getId())) {// 在当前的channel列表中
+            // 在当前的channel列表中
+            if (pipelineIds.contains(pipeline.getId())) {
                 boolean needAdd = false;
-                NodeTask matchTask = getMatchTask(tasks, task);// 找到对应的匹配
+                // 找到对应的匹配
+                NodeTask matchTask = getMatchTask(tasks, task);
                 if (matchTask == null) {
                     matchTask = new NodeTask();
                     matchTask.setPipeline(pipeline);
@@ -242,7 +255,8 @@ public class NodeTaskServiceImpl implements NodeTaskService, InitializingBean {
                     StageType stage = stages.get(i);
                     TaskEvent event = events.get(i);
                     TaskEvent matchEvent = getMatchStage(matchTask, stage);
-                    if (matchEvent == null && event.isCreate()) {// 对应的stage已经被移除，触发一个DELETE操作
+                    // 对应的stage已经被移除，触发一个DELETE操作
+                    if (matchEvent == null && event.isCreate()) {
                         matchTask.getStage().add(stage);
                         matchTask.getEvent().add(TaskEvent.DELETE);
                     }
@@ -258,7 +272,8 @@ public class NodeTaskServiceImpl implements NodeTaskService, InitializingBean {
         // 判断当前的task是否需要全部关闭
         for (NodeTask task : tasks) {
             boolean shutdown = true;
-            for (TaskEvent event : task.getEvent()) {// task已为当前最新节点信息
+            // task已为当前最新节点信息
+            for (TaskEvent event : task.getEvent()) {
                 shutdown &= event.isDelete();
             }
             task.setShutdown(shutdown);
@@ -285,7 +300,13 @@ public class NodeTaskServiceImpl implements NodeTaskService, InitializingBean {
         return result;
     }
 
-    // 将target的目标除去source中的信息
+    /**
+     * 将target的目标除去source中的信息
+     *
+     * @param targetTask
+     * @param sourceTask
+     * @return
+     */
     private NodeTask retain(NodeTask targetTask, NodeTask sourceTask) {
         List<StageType> stages = targetTask.getStage();
         List<TaskEvent> events = targetTask.getEvent();
@@ -299,13 +320,14 @@ public class NodeTaskServiceImpl implements NodeTaskService, InitializingBean {
 
             // 找到source节点对应的TaskEvent
             TaskEvent sourceEvent = getMatchStage(sourceTask, stage);
-            if (sourceEvent != null && sourceEvent != event) {// 存在相同的stage节点，判断event是否相同，不同则则添加
+            // 存在相同的stage节点，判断event是否相同，不同则则添加
+            if (sourceEvent != null && sourceEvent != event) {
                 mergeStates.add(stage);
                 mergeEvents.add(event);
             }
         }
 
-        // 添加targtTask中特有的stage/event
+        // 添加targetTask中特有的stage/event
         for (int i = 0; i < stages.size(); i++) {
             StageType stage = stages.get(i);
             TaskEvent event = events.get(i);
@@ -328,7 +350,12 @@ public class NodeTaskServiceImpl implements NodeTaskService, InitializingBean {
 
     }
 
-    // 合并两个task列表
+    /**
+     * 合并两个task列表
+     *
+     * @param targetTasks
+     * @param sourceTasks
+     */
     private void merge(List<NodeTask> targetTasks, List<NodeTask> sourceTasks) {
         for (NodeTask task : sourceTasks) {
             // 找到对应的
@@ -344,7 +371,13 @@ public class NodeTaskServiceImpl implements NodeTaskService, InitializingBean {
         }
     }
 
-    // 获取pipelineId匹配的的NodeTask
+    /**
+     * 获取pipelineId匹配的的NodeTask
+     *
+     * @param tasks
+     * @param match
+     * @return
+     */
     private NodeTask getMatchTask(List<NodeTask> tasks, NodeTask match) {
         for (NodeTask task : tasks) {
             if (match.getPipeline().getId().equals(task.getPipeline().getId())) {
@@ -355,7 +388,12 @@ public class NodeTaskServiceImpl implements NodeTaskService, InitializingBean {
         return null;
     }
 
-    // 合并两个NodeTask对象
+    /**
+     * 合并两个NodeTask对象
+     *
+     * @param target
+     * @param source
+     */
     private void merge(NodeTask target, NodeTask source) {
         List<StageType> stages = target.getStage();
         List<TaskEvent> events = target.getEvent();
@@ -391,11 +429,17 @@ public class NodeTaskServiceImpl implements NodeTaskService, InitializingBean {
         // 更新一下数据
         target.setEvent(mergeEvents);
         target.setStage(mergeStates);
-
-        target.setShutdown(source.isShutdown());// 更新下shutdown变量
+        // 更新下shutdown变量
+        target.setShutdown(source.isShutdown());
     }
 
-    // 获取匹配stage的TaskEvent对象
+    /**
+     * 获取匹配stage的TaskEvent对象
+     *
+     * @param nodeTask
+     * @param stage
+     * @return
+     */
     private TaskEvent getMatchStage(NodeTask nodeTask, StageType stage) {
         List<StageType> stages = nodeTask.getStage();
         List<TaskEvent> events = nodeTask.getEvent();
@@ -416,11 +460,17 @@ public class NodeTaskServiceImpl implements NodeTaskService, InitializingBean {
      * 接受manager的channel变更事件
      */
     protected synchronized boolean onNotifyChannel(NotifyChannelEvent event) {
-        configClientService.createOrUpdateChannel(event.getChannel()); // 更新本地的config数据
+        // 更新本地的config数据
+        configClientService.createOrUpdateChannel(event.getChannel());
         processNodeTask(event.getChannel());
         return notifyListener();
     }
 
+    /**
+     * 通知监听者
+     *
+     * @return
+     */
     private synchronized boolean notifyListener() {
         boolean result = true;
         List<NodeTask> incNodeTask = new ArrayList<NodeTask>(incTasks);
@@ -441,6 +491,7 @@ public class NodeTaskServiceImpl implements NodeTaskService, InitializingBean {
         return result;
     }
 
+    @Override
     public void stopNode() {
         Node node = configClientService.currentNode();
         StopNodeEvent event = new StopNodeEvent();
@@ -448,6 +499,7 @@ public class NodeTaskServiceImpl implements NodeTaskService, InitializingBean {
         nodeCommmunicationClient.callManager(event);
     }
 
+    @Override
     public void addListener(NodeTaskListener listener) {
         Assert.notNull(listener);
         this.listeners.add(listener);

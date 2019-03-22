@@ -18,10 +18,10 @@ package com.alibaba.otter.shared.arbitrate.impl.alarm;
 
 import java.text.MessageFormat;
 
+import com.alibaba.otter.shared.arbitrate.impl.communication.ArbitrateCommunicationClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.alibaba.otter.shared.arbitrate.impl.communication.ArbitrateCommmunicationClient;
 import com.alibaba.otter.shared.common.model.config.alarm.MonitorName;
 import com.alibaba.otter.shared.communication.core.model.Callback;
 import com.alibaba.otter.shared.communication.model.arbitrate.NodeAlarmEvent;
@@ -36,7 +36,7 @@ public class AlarmClientService {
 
     private static final Logger           logger         = LoggerFactory.getLogger(AlarmClientService.class);
     private static final String           MESSAGE_FORMAT = "{0}:{1}";
-    private ArbitrateCommmunicationClient arbitrateCommmunicationClient;
+    private ArbitrateCommunicationClient arbitrateCommunicationClient;
 
     public void sendAlarm(Long currentNid, Long pipelineId, String title, String msg) {
         final NodeAlarmEvent event = new NodeAlarmEvent();
@@ -44,7 +44,7 @@ public class AlarmClientService {
         event.setTitle(MonitorName.EXCEPTION.name());
         event.setMessage(MessageFormat.format(MESSAGE_FORMAT, title, msg));
         event.setPipelineId(pipelineId);
-        arbitrateCommmunicationClient.callManager(event, new Callback<Object>() {
+        arbitrateCommunicationClient.callManager(event, new Callback<Object>() {
 
             public void call(Object result) {
                 logger.info("##callManager successed! event:[{}]", event.toString());
@@ -55,8 +55,8 @@ public class AlarmClientService {
 
     // =============== setter / getter ==================
 
-    public void setArbitrateCommmunicationClient(ArbitrateCommmunicationClient arbitrateCommmunicationClient) {
-        this.arbitrateCommmunicationClient = arbitrateCommmunicationClient;
+    public void setArbitrateCommunicationClient(ArbitrateCommunicationClient arbitrateCommunicationClient) {
+        this.arbitrateCommunicationClient = arbitrateCommunicationClient;
     }
 
 }

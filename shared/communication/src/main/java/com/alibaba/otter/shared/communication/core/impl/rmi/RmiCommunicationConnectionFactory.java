@@ -34,7 +34,8 @@ public class RmiCommunicationConnectionFactory implements CommunicationConnectio
 
     static {
         // 初始化rmi相关的参数
-        System.setProperty("sun.rmi.transport.connectTimeout", "30000"); // 连接超时
+        // 连接超时
+        System.setProperty("sun.rmi.transport.connectTimeout", "30000");
     }
 
     private final String RMI_SERVICE_URL = "rmi://{0}:{1}/endpoint";
@@ -52,7 +53,8 @@ public class RmiCommunicationConnectionFactory implements CommunicationConnectio
         proxy.setServiceUrl(serviceUrl);
         proxy.setServiceInterface(CommunicationEndpoint.class);
         proxy.afterPropertiesSet();
-        return new RmiCommunicationConnection(params, (CommunicationEndpoint) proxy.getObject());// 创建链接
+        // 创建链接
+        return new RmiCommunicationConnection(params, (CommunicationEndpoint) proxy.getObject());
     }
 
     @Override

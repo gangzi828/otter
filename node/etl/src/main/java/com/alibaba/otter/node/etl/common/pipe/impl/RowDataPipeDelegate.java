@@ -45,19 +45,22 @@ import com.alibaba.otter.shared.etl.model.EventData;
 
 /**
  * 管道操作相关工具类
- * 
+ *
  * @author jianghang 2011-10-17 下午04:02:35
  * @version 4.0.0
  */
 public class RowDataPipeDelegate {
 
-    private RowDataMemoryPipe   rowDataMemoryPipe;
-    private AttachmentHttpPipe  attachmentHttpPipe;
-    private RowDataHttpPipe     rowDataHttpPipe;
-    private RowDataRpcPipe      rowDataRpcPipe;
+    private RowDataMemoryPipe rowDataMemoryPipe;
+    private AttachmentHttpPipe attachmentHttpPipe;
+    private RowDataHttpPipe rowDataHttpPipe;
+    private RowDataRpcPipe rowDataRpcPipe;
     private ConfigClientService configClientService;
-    private ExecutorService     executorService;
-    private long                sizeThresold = 1024 * 128L; // 默认1MB
+    private ExecutorService executorService;
+    /**
+     * 默认1MB
+     */
+    private long sizeThresold = 1024 * 128L;
 
     /**
      * 将对应的数据传递到指定的Node id节点上
@@ -72,10 +75,10 @@ public class RowDataPipeDelegate {
             if (data.getFileBatch() != null && !CollectionUtils.isEmpty(data.getFileBatch().getFiles())) {
                 future = executorService.submit(new Callable<PipeKey>() {
 
+                    @Override
                     public PipeKey call() throws Exception {
                         try {
-                            MDC.put(OtterConstants.splitPipelineLogFileKey,
-                                    String.valueOf(data.getFileBatch().getIdentity().getPipelineId()));
+                            MDC.put(OtterConstants.splitPipelineLogFileKey, String.valueOf(data.getFileBatch().getIdentity().getPipelineId()));
                             return attachmentHttpPipe.put(data.getFileBatch());
                         } finally {
                             MDC.remove(OtterConstants.splitPipelineLogFileKey);
@@ -122,18 +125,20 @@ public class RowDataPipeDelegate {
 
             if (key instanceof MemoryPipeKey) {
                 dbBatch = rowDataMemoryPipe.get((MemoryPipeKey) key);
-                return dbBatch;// 直接返回
+                // 直接返回
+                return dbBatch;
             } else if (key instanceof HttpPipeKey) {
-                if (key.getDataType().isDbBatch()) { // 区分一下数据下载
+                // 区分一下数据下载
+                if (key.getDataType().isDbBatch()) {
                     dbBatch = rowDataHttpPipe.get((HttpPipeKey) key);
                 } else {
                     future = executorService.submit(new Callable<File>() {
 
+                        @Override
                         public File call() throws Exception {
                             try {
                                 HttpPipeKey pipeKey = (HttpPipeKey) key;
-                                MDC.put(OtterConstants.splitPipelineLogFileKey,
-                                        String.valueOf(pipeKey.getIdentity().getPipelineId()));
+                                MDC.put(OtterConstants.splitPipelineLogFileKey, String.valueOf(pipeKey.getIdentity().getPipelineId()));
                                 return attachmentHttpPipe.get(pipeKey);
                             } finally {
                                 MDC.remove(OtterConstants.splitPipelineLogFileKey);
@@ -159,7 +164,12 @@ public class RowDataPipeDelegate {
         return dbBatch;
     }
 
-    // 大致估算一下row记录的大小
+    /**
+     * 大致估算一下row记录的大小
+     *
+     * @param data
+     * @return
+     */
     private long calculateSize(DbBatch data) {
         long size = 0;
         for (EventData eventData : data.getRowBatch().getDatas()) {
@@ -167,18 +177,6 @@ public class RowDataPipeDelegate {
         }
 
         return size;
-
-        // 走序列化的方式快速计算一下大小
-        // SerializeWriter out = new SerializeWriter();
-        // try {
-        // JSONSerializer serializer = new JSONSerializer(out);
-        // serializer.config(SerializerFeature.SortField, false);// 关掉排序
-        // serializer.write(data);
-        // byte[] bytes = out.toBytes("UTF-8");
-        // return bytes.length;
-        // } finally {
-        // out.close();
-        // }
     }
 
     private boolean isLocal(Long nid) {
