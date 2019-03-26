@@ -57,7 +57,7 @@ public class SelectStageListenerTest extends BaseStageTest {
             List<Long> processIds = monitor.getCurrentProcessIds();
 
             want.collection(processIds).isEqualTo(initProcessIds);
-            select.destory();
+            select.destroy();
             ArbitrateFactory.destory(pipelineId);
         } catch (InterruptedException e) {
             want.fail();
@@ -101,7 +101,7 @@ public class SelectStageListenerTest extends BaseStageTest {
             List<Long> processIds = monitor.getCurrentProcessIds();
             want.collection(processIds).isEqualTo(initProcessIds);
             count.await();
-            select.destory();
+            select.destroy();
             ArbitrateFactory.destory(pipelineId);
         } catch (InterruptedException e) {
             want.fail();

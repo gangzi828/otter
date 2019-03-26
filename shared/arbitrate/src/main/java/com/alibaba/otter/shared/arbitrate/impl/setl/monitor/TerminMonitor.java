@@ -75,8 +75,9 @@ public class TerminMonitor extends ArbitrateLifeCycle implements Monitor {
         }
     }
 
-    public void destory() {
-        super.destory();
+    @Override
+    public void destroy() {
+        super.destroy();
         if (logger.isDebugEnabled()) {
             logger.debug("## destory termin pipeline[{}]", getPipelineId());
         }

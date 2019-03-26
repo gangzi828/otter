@@ -41,8 +41,9 @@ public abstract class AbstractLoadBalance extends ArbitrateLifeCycle implements 
 
     public abstract List<Node> getAliveNodes();
 
-    public void destory() {
-        super.destory();
+    @Override
+    public void destroy() {
+        super.destroy();
     }
 
     public void setNodeMonitor(NodeMonitor nodeMonitor) {

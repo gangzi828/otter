@@ -90,10 +90,12 @@ public class PermitMonitor extends ArbitrateLifeCycle implements Monitor {
         // 开始同步
         channelDataListener = new IZkDataListener() {
 
+            @Override
             public void handleDataChange(String dataPath, Object data) throws Exception {
                 initChannelStatus((byte[]) data);
             }
 
+            @Override
             public void handleDataDeleted(String dataPath) throws Exception {
                 channelStatus = ChannelStatus.STOP;
                 permitSem();
@@ -104,10 +106,12 @@ public class PermitMonitor extends ArbitrateLifeCycle implements Monitor {
 
         mainstemDataListener = new IZkDataListener() {
 
+            @Override
             public void handleDataChange(String dataPath, Object data) throws Exception {
                 initMainStemStatus((byte[]) data);
             }
 
+            @Override
             public void handleDataDeleted(String dataPath) throws Exception {
                 // mainstem节点挂了后，状态直接修改为taking
                 mainStemStatus = MainStemEventData.Status.TAKEING;
@@ -125,10 +129,12 @@ public class PermitMonitor extends ArbitrateLifeCycle implements Monitor {
         if (existOpposite) {
             oppositeMainstemDataListener = new IZkDataListener() {
 
+                @Override
                 public void handleDataChange(String dataPath, Object data) throws Exception {
                     initOppositeMainStemStatus((byte[]) data);
                 }
 
+                @Override
                 public void handleDataDeleted(String dataPath) throws Exception {
                     // mainstem节点挂了后，状态直接修改为taking
                     oppositeMainStemStatus = MainStemEventData.Status.TAKEING;
@@ -177,8 +183,9 @@ public class PermitMonitor extends ArbitrateLifeCycle implements Monitor {
 
     }
 
-    public void destory() {
-        super.destory();
+    @Override
+    public void destroy() {
+        super.destroy();
 
         if (logger.isDebugEnabled()) {
             logger.debug("## destory Permit pipeline[{}]", getPipelineId());
@@ -432,39 +439,6 @@ public class PermitMonitor extends ArbitrateLifeCycle implements Monitor {
         }
     }
 
-    // private void syncOppositeMainStemStatus() {
-    // final String path = StagePathUtils.getOppositeMainStem(getPipelineId());
-    // try {
-    // // exists同样在data发生变化时会触发
-    // zookeeper.exists(path, new AsyncWatcher() {
-    //
-    // public void asyncProcess(WatchedEvent event) {
-    // MDC.put(ArbitrateConstants.splitPipelineLogFileKey, String.valueOf(getPipelineId()));
-    // if (existOpposite == false || isStop()) {// 如果已关闭，停止递归同步
-    // return;
-    // }
-    // // 出现session expired/connection losscase下，会触发所有的watcher响应，同时老的watcher会继续保留，所以会导致出现多次watcher响应
-    // boolean dataChanged = event.getType() == EventType.NodeDataChanged
-    // || event.getType() == EventType.NodeDeleted
-    // || event.getType() == EventType.NodeCreated
-    // || event.getType() == EventType.NodeChildrenChanged;
-    // if (dataChanged) {
-    // syncOppositeMainStemStatus();// 开始同步mainStem状态
-    // }
-    // }
-    // });
-    //
-    // initOppositeMainStemStatus();
-    // } catch (NoNodeException e) {
-    // // 可能不存在对应的opposite节点,忽略
-    // } catch (KeeperException e) {
-    // syncOppositeMainStemStatus();// 开始同步mainStem状态
-    // logger.error(path, e);
-    // } catch (InterruptedException e) {
-    // // ignore
-    // }
-    // }
-
     /**
      * permit信号的处理
      */
@@ -491,8 +465,8 @@ public class PermitMonitor extends ArbitrateLifeCycle implements Monitor {
             }
             permitMutex.set(true);
         }
-
-        processChanged(permit);// 通知下变化
+    // 通知下变化
+        processChanged(permit);
     }
 
     // ======================== listener处理 ======================

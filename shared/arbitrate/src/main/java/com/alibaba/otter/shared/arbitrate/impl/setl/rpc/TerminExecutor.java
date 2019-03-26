@@ -46,8 +46,9 @@ public class TerminExecutor extends ArbitrateLifeCycle {
         return executor.submit(task);
     }
 
-    public void destory() {
-        super.destory();
+    @Override
+    public void destroy() {
+        super.destroy();
         executor.shutdownNow();
     }
 

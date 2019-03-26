@@ -101,7 +101,7 @@ public class PermitMonitorTest extends BaseEventTest {
     public void tearDown() {
         destoryMainStem(pipelineId);
         destoryMainStem(oppositePipelineId);
-        permitMonitor.destory();
+        permitMonitor.destroy();
         // MonitorScheduler.unRegister(permitMonitor);
         // 初始化两个pipeline
         pipelineEvent.destory(channelId, pipelineId);

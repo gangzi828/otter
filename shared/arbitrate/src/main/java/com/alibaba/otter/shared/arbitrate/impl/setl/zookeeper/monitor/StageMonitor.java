@@ -102,8 +102,9 @@ public class StageMonitor extends ArbitrateLifeCycle implements Monitor {
         MonitorScheduler.register(this);
     }
 
-    public void destory() {
-        super.destory();
+    @Override
+    public void destroy() {
+        super.destroy();
         if (logger.isDebugEnabled()) {
             logger.debug("## destory Stage pipeline[{}]", getPipelineId());
         }

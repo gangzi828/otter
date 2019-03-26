@@ -97,7 +97,7 @@ public class ExtractStageListenerTest extends BaseStageTest {
             want.collection(currentP2Stages).isEqualTo(stages.get(p2));
             want.collection(currentP3Stages).isEqualTo(stages.get(p3));
             want.collection(currentP4Stages).isEqualTo(stages.get(p4));
-            extract.destory();
+            extract.destroy();
             ArbitrateFactory.destory(pipelineId);
         } catch (InterruptedException e) {
             want.fail();
@@ -193,7 +193,7 @@ public class ExtractStageListenerTest extends BaseStageTest {
             want.collection(currentP4Stages).isEqualTo(stages.get(p4));
             want.collection(currentP5Stages).isEqualTo(stages.get(p5));
             want.collection(currentP6Stages).isEqualTo(stages.get(p6));
-            extract.destory();
+            extract.destroy();
             ArbitrateFactory.destory(pipelineId);
         } catch (InterruptedException e) {
             want.fail();

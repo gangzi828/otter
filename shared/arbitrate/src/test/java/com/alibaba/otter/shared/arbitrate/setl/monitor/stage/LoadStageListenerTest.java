@@ -82,7 +82,7 @@ public class LoadStageListenerTest extends BaseStageTest {
             want.collection(processIds).isEqualTo(initProcessIds);
             want.collection(currentP1Stages).isEqualTo(stages.get(p1));
             want.collection(currentP2Stages).isEqualTo(stages.get(p2));
-            load.destory();
+            load.destroy();
             ArbitrateFactory.destory(pipelineId);
         } catch (InterruptedException e) {
             want.fail();
@@ -192,7 +192,7 @@ public class LoadStageListenerTest extends BaseStageTest {
             want.collection(currentP1Stages).isEqualTo(stages.get(p1));
             want.collection(currentP2Stages).isEqualTo(stages.get(p2));
             want.collection(currentP3Stages).isEqualTo(stages.get(p3));
-            load.destory();
+            load.destroy();
             ArbitrateFactory.destory(pipelineId);
         } catch (InterruptedException e) {
             want.fail();

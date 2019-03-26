@@ -59,6 +59,7 @@ public abstract class AbstractProcessListener extends ArbitrateLifeCycle impleme
         processMonitor.reload(); // 触发一下processChanged
     }
 
+    @Override
     public void processChanged(List<Long> processIds) {
         // 在运行过程中会出现Termin(rollback/restart/shutdown)等信号，仲裁器会删除当前运行的所有process
         // 因此需要删除之前已满足条件的队列记录，在具体的event处理时还会再对processId再做一次判断，是否已被废弃
@@ -106,8 +107,9 @@ public abstract class AbstractProcessListener extends ArbitrateLifeCycle impleme
         }
     }
 
-    public void destory() {
-        super.destory();
+    @Override
+    public void destroy() {
+        super.destroy();
         logger.info("## destory pipeline[{}] , Listener[{}]", getPipelineId(),
                     ClassUtils.getShortClassName(this.getClass()));
 

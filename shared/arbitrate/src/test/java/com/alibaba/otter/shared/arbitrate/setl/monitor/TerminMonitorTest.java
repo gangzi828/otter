@@ -109,7 +109,7 @@ public class TerminMonitorTest extends BaseEventTest {
 
             want.bool(p1.equals(1L)).is(true);
             want.bool(p2.equals(2L)).is(true);
-            terminMonitor.destory();
+            terminMonitor.destroy();
         } catch (InterruptedException e) {
             want.fail();
         } finally {
@@ -139,7 +139,7 @@ public class TerminMonitorTest extends BaseEventTest {
             want.bool(p1.equals(1L)).is(true);
             want.bool(p2.equals(2L)).is(true);
             want.bool(p3.equals(3L)).is(true);
-            terminMonitor.destory();
+            terminMonitor.destroy();
         } catch (InterruptedException e) {
             want.fail();
         } finally {

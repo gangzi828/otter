@@ -175,8 +175,8 @@ public class MainstemMonitor extends ArbitrateLifeCycle implements Monitor {
     }
 
     @Override
-    public void destory() {
-        super.destory();
+    public void destroy() {
+        super.destroy();
 
         String path = StagePathUtils.getMainStem(getPipelineId());
         zookeeper.unsubscribeDataChanges(path, dataListener);

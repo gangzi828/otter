@@ -101,7 +101,7 @@ public class TransformStageListenerTest extends BaseStageTest {
             want.collection(currentP2Stages).isEqualTo(stages.get(p2));
             want.collection(currentP3Stages).isEqualTo(stages.get(p3));
             want.collection(currentP4Stages).isEqualTo(stages.get(p4));
-            transform.destory();
+            transform.destroy();
             ArbitrateFactory.destory(pipelineId);
         } catch (InterruptedException e) {
             want.fail();
@@ -182,7 +182,7 @@ public class TransformStageListenerTest extends BaseStageTest {
             want.collection(currentP2Stages).isEqualTo(stages.get(p2));
             want.collection(currentP3Stages).isEqualTo(stages.get(p3));
             want.collection(currentP4Stages).isEqualTo(stages.get(p4));
-            transform.destory();
+            transform.destroy();
             ArbitrateFactory.destory(pipelineId);
         } catch (InterruptedException e) {
             want.fail();

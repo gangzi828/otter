@@ -56,6 +56,7 @@ public class SelectProcessListener extends AbstractProcessListener implements Pr
         recovery(getPipelineId());// 启动时载入一次
     }
 
+    @Override
     public void processChanged(List<Long> processIds) {
         super.processChanged(processIds);
         // add by ljh at 2012-09-13,解决zookeeper ConnectionLoss问题
@@ -122,6 +123,7 @@ public class SelectProcessListener extends AbstractProcessListener implements Pr
 
     }
 
+    @Override
     public void processChanged(boolean isPermit) {
         if (this.isPermit != isPermit && isPermit == true) { // isPemit从未授权到一个授权的变动
             processMonitor.reload(); // 触发一下processChanged，快速的创建process
@@ -149,19 +151,22 @@ public class SelectProcessListener extends AbstractProcessListener implements Pr
         }
     }
 
+    @Override
     public void processActiveEnter() {
         recovery(getPipelineId());
         processMonitor.reload(); // 触发一下processChanged
     }
 
+    @Override
     public void processActiveExit() {
         ArbitrateFactory.destory(getPipelineId(), this.getClass());
     }
 
-    public void destory() {
+    @Override
+    public void destroy() {
         // 取消注册
         permitMonitor.removeListener(this);
         mainstemMonitor.removeListener(this);
-        super.destory();
+        super.destroy();
     }
 }

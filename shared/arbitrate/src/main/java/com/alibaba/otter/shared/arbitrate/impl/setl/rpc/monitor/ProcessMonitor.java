@@ -104,8 +104,9 @@ public class ProcessMonitor extends ArbitrateLifeCycle implements Monitor {
         return currentProcessIds;
     }
 
-    public void destory() {
-        super.destory();
+    @Override
+    public void destroy() {
+        super.destroy();
         if (logger.isDebugEnabled()) {
             logger.debug("## destory process pipeline[{}]", getPipelineId());
         }

@@ -45,7 +45,7 @@ public abstract class ArbitrateLifeCycle {
         this.stop = stop;
     }
 
-    public void destory() {
+    public void destroy() {
         stop = true;
     }
 }

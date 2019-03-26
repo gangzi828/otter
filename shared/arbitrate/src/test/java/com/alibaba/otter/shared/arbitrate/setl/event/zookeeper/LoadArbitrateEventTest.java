@@ -95,7 +95,7 @@ public class LoadArbitrateEventTest extends BaseArbitrateEventTest {
 
             SelectStageListener selectStageListener = ArbitrateFactory.getInstance(pipelineId,
                                                                                    SelectStageListener.class);
-            selectStageListener.destory();
+            selectStageListener.destroy();
             // load stage
             EtlEventData ldata1 = loadEvent.await(pipelineId);
             loadEvent.single(ldata1);
