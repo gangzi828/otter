@@ -48,6 +48,7 @@ import java.util.concurrent.locks.AbstractQueuedSynchronizer;
  */
 public class BooleanMutex {
 
+
     private Sync sync;
 
     public BooleanMutex() {

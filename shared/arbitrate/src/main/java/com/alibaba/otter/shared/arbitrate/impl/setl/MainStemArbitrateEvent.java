@@ -53,7 +53,7 @@ public class MainStemArbitrateEvent implements ArbitrateEvent {
             // 当前状态不为启动，强制设置为taking，下次授权启动后重新追数据
             MainStemEventData data = new MainStemEventData();
             data.setPipelineId(pipelineId);
-            data.setStatus(MainStemEventData.Status.TAKEING);
+            data.setStatus(MainStemEventData.Status.TAKING);
             single(data);
             permitMonitor.waitForChannelPermit(); // 阻塞等待挂起
             return;

@@ -115,7 +115,7 @@ public class PermitMonitorTest extends BaseEventTest {
         String path = pipelinePath + "/" + ArbitrateConstants.NODE_MAINSTEM;
 
         MainStemEventData eventData = new MainStemEventData();
-        eventData.setStatus(MainStemEventData.Status.TAKEING);
+        eventData.setStatus(MainStemEventData.Status.TAKING);
         byte[] bytes = JsonUtils.marshalToByte(eventData);// 初始化的数据对象
 
         zookeeper.create(path, bytes, CreateMode.EPHEMERAL);
@@ -153,7 +153,7 @@ public class PermitMonitorTest extends BaseEventTest {
     public void testPermit_init_fail() {// 测试下permit的初始化内容
         channelEvent.start(channelId);
         updateMainStem(pipelineId, MainStemEventData.Status.OVERTAKE);
-        updateMainStem(oppositePipelineId, MainStemEventData.Status.TAKEING);// 一个节点挂起
+        updateMainStem(oppositePipelineId, MainStemEventData.Status.TAKING);// 一个节点挂起
 
         permitMonitor = new PermitMonitor(pipelineId);
         boolean isPermit = permitMonitor.isPermit();
@@ -164,14 +164,14 @@ public class PermitMonitorTest extends BaseEventTest {
     public void testPermit_change() {
         channelEvent.start(channelId);
         updateMainStem(pipelineId, MainStemEventData.Status.OVERTAKE);
-        updateMainStem(oppositePipelineId, MainStemEventData.Status.TAKEING);// 一个节点挂起
+        updateMainStem(oppositePipelineId, MainStemEventData.Status.TAKING);// 一个节点挂起
 
         permitMonitor = new PermitMonitor(pipelineId);
         boolean isPermit = permitMonitor.isPermit();
         want.bool(isPermit).is(false);
 
         updateMainStem(oppositePipelineId, MainStemEventData.Status.OVERTAKE);
-        updateMainStem(pipelineId, MainStemEventData.Status.TAKEING);// 一个节点挂起
+        updateMainStem(pipelineId, MainStemEventData.Status.TAKING);// 一个节点挂起
         sleep();// 需要sleep一下，保证数据已经更新到monitor上
         isPermit = permitMonitor.isPermit();
         want.bool(isPermit).is(false);
@@ -197,7 +197,7 @@ public class PermitMonitorTest extends BaseEventTest {
             want.fail();
         }
 
-        updateMainStem(pipelineId, MainStemEventData.Status.TAKEING);// 一个节点挂起
+        updateMainStem(pipelineId, MainStemEventData.Status.TAKING);// 一个节点挂起
         sleep();
         isPermit = permitMonitor.isPermit();
         want.bool(isPermit).is(false);

@@ -65,7 +65,7 @@ public class MainstemMonitor extends ArbitrateLifeCycle implements Monitor {
 
     private static final Logger logger = LoggerFactory.getLogger(MainstemMonitor.class);
     private ZkClientx zookeeper = ZooKeeperClient.getInstance();
-    private ScheduledExecutorService delayExector = Executors.newScheduledThreadPool(1);
+    private ScheduledExecutorService delayExecutor = Executors.newScheduledThreadPool(1);
     private int delayTime = 5;
     private volatile MainStemEventData activeData;
     private IZkDataListener dataListener;
@@ -105,7 +105,7 @@ public class MainstemMonitor extends ArbitrateLifeCycle implements Monitor {
 
                 } else {
                     // 否则就是等待delayTime，避免因网络瞬端或者zk异常，导致出现频繁的切换操作
-                    delayExector.schedule(new Runnable() {
+                    delayExecutor.schedule(new Runnable() {
 
                         @Override
                         public void run() {
@@ -150,7 +150,7 @@ public class MainstemMonitor extends ArbitrateLifeCycle implements Monitor {
         String path = StagePathUtils.getMainStem(getPipelineId());
 
         MainStemEventData data = new MainStemEventData();
-        data.setStatus(MainStemEventData.Status.TAKEING);
+        data.setStatus(MainStemEventData.Status.TAKING);
         data.setPipelineId(getPipelineId());
         data.setNid(nid);// 设置当前的nid
         // 序列化
@@ -181,7 +181,7 @@ public class MainstemMonitor extends ArbitrateLifeCycle implements Monitor {
         String path = StagePathUtils.getMainStem(getPipelineId());
         zookeeper.unsubscribeDataChanges(path, dataListener);
 
-        delayExector.shutdownNow(); // 关闭调度
+        delayExecutor.shutdownNow(); // 关闭调度
         releaseMainstem();
         MonitorScheduler.unRegister(this);
     }
@@ -250,10 +250,11 @@ public class MainstemMonitor extends ArbitrateLifeCycle implements Monitor {
         if (!check()) {
             return;
         }
-
-        data.setNid(nid);// 设置当前的nid
+        // 设置当前的nid
+        data.setNid(nid);
         String path = StagePathUtils.getMainStem(data.getPipelineId());
-        byte[] bytes = JsonUtils.marshalToByte(data);// 初始化的数据对象
+        // 初始化的数据对象
+        byte[] bytes = JsonUtils.marshalToByte(data);
         try {
             zookeeper.writeData(path, bytes);
         } catch (ZkException e) {

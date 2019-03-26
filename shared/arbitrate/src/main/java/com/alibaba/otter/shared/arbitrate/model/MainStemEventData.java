@@ -40,14 +40,14 @@ public class MainStemEventData extends PipelineEventData {
         /**
          * 追赶中
          */
-        TAKEING;
+        TAKING;
 
         public boolean isOverTake() {
             return this.equals(Status.OVERTAKE);
         }
 
         public boolean isTaking() {
-            return this.equals(Status.TAKEING);
+            return this.equals(Status.TAKING);
         }
     }
 

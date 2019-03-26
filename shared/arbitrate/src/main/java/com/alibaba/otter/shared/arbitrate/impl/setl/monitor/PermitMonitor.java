@@ -65,11 +65,11 @@ public class PermitMonitor extends ArbitrateLifeCycle implements Monitor {
     /**
      * 当前pipeline的mainStem状态
      */
-    private MainStemEventData.Status mainStemStatus = MainStemEventData.Status.TAKEING;
+    private MainStemEventData.Status mainStemStatus = MainStemEventData.Status.TAKING;
     /**
      * 反方向的pipeline的mainStem状态
      */
-    private MainStemEventData.Status oppositeMainStemStatus = MainStemEventData.Status.TAKEING;
+    private MainStemEventData.Status oppositeMainStemStatus = MainStemEventData.Status.TAKING;
 
     private ExecutorService arbitrateExecutor;
     /**
@@ -114,7 +114,7 @@ public class PermitMonitor extends ArbitrateLifeCycle implements Monitor {
             @Override
             public void handleDataDeleted(String dataPath) throws Exception {
                 // mainstem节点挂了后，状态直接修改为taking
-                mainStemStatus = MainStemEventData.Status.TAKEING;
+                mainStemStatus = MainStemEventData.Status.TAKING;
                 permitSem();
             }
         };
@@ -137,7 +137,7 @@ public class PermitMonitor extends ArbitrateLifeCycle implements Monitor {
                 @Override
                 public void handleDataDeleted(String dataPath) throws Exception {
                     // mainstem节点挂了后，状态直接修改为taking
-                    oppositeMainStemStatus = MainStemEventData.Status.TAKEING;
+                    oppositeMainStemStatus = MainStemEventData.Status.TAKING;
                     permitSem();
                 }
             };
@@ -352,7 +352,7 @@ public class PermitMonitor extends ArbitrateLifeCycle implements Monitor {
             initMainStemStatus(bytes);
         } catch (ZkNoNodeException e) {
             // mainstem节点挂了后，状态直接修改为taking
-            mainStemStatus = MainStemEventData.Status.TAKEING;
+            mainStemStatus = MainStemEventData.Status.TAKING;
             permitSem();
         } catch (ZkException e) {
             logger.error(path, e);
@@ -416,7 +416,7 @@ public class PermitMonitor extends ArbitrateLifeCycle implements Monitor {
             initOppositeMainStemStatus(bytes);
         } catch (ZkNoNodeException e) {
             // mainstem节点挂了后，状态直接修改为taking
-            oppositeMainStemStatus = MainStemEventData.Status.TAKEING;
+            oppositeMainStemStatus = MainStemEventData.Status.TAKING;
             permitSem();
         } catch (ZkException e) {
             logger.error(path, e);

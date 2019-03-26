@@ -165,11 +165,11 @@ public class OtterDownStreamHandler extends AbstractCanalEventDownStreamHandler<
         if (failedCount == 1) {
             detectingExpCount = 1;// 系数重置
 
-            notifyMainstemStatus(MainStemEventData.Status.TAKEING);
+            notifyMainstemStatus(MainStemEventData.Status.TAKING);
         }
 
         if (failedCount >= detectingThresoldCount * detectingExpCount * detectingExpCount) {
-            notifyMainstemStatus(MainStemEventData.Status.TAKEING);
+            notifyMainstemStatus(MainStemEventData.Status.TAKING);
             detectingExpCount++; // 系数增大一次
 
             // 并且发送一次报警信息，系统不太正常了，超过一定时间一次都没有拿到对应的数据
